@@ -12,8 +12,8 @@
 #endif
 
 #include "include/Types.bt"
-#include "Section101.bt"
-#include "Section102.bt"
+#include "SgChunk101.bt"
+#include "SgChunk102.bt"
 
 struct FileHeader
 {
@@ -35,7 +35,7 @@ GameType identifyGameFromFileHeader()
     if (g_fileHeader.u1 == -1 &&
         g_fileHeader.u2  == 0 &&
         g_fileHeader.u3 >= 14 &&
-        g_fileHeader.Version >= 64 &&
+        g_fileHeader.Version >= 66 &&
         g_fileHeader.u5 >= 20)
     {
         return GameType_DyingLight;
@@ -53,10 +53,10 @@ while (!FEof()) {
         SectionHeader header;
         switch (header.Id) {
         case 101:
-            Section101 data;
+            SgChunk101 data;
             break;
         case 102:
-            Section102 data;
+            SgChunk102 data;
             break;
         default:
             struct {

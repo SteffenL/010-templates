@@ -1,0 +1,238 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author: Steffen A. Langnes
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION101_H
+#define SECTION101_H
+
+#include "include/Types.bt"
+
+struct SgDateTime {
+    uint16_t year;
+    uint16_t month;
+    uint16_t day;
+    uint16_t hour;
+    uint16_t minute;
+};
+
+struct SgChunk101_SgStart {
+    static const SgObjectId ID = 0;
+    SG_SERIALIZE_ID;
+};
+
+struct SgVersion {
+    static const SgObjectId ID = 2;
+
+    SG_SERIALIZE_ID;
+    int32_t value;
+};
+
+struct SgUnknown002 {
+    static const SgObjectId ID = 9;
+
+    SG_SERIALIZE_ID;
+    bool unknown001;
+    int32_t unknown002;
+};
+
+struct SgUnknown003 {
+    static const SgObjectId ID = 14;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+};
+
+struct SgPerkInfo {
+    String name;
+    int32_t level;
+};
+
+struct SgStoryInfo {
+    static const SgObjectId ID = 5;
+
+    SG_SERIALIZE_ID;
+    String activeQuest;
+    String activeQuestJournalText;
+    int32_t unknown001;
+    int32_t storyCompletion;
+    int32_t totalCompletion;
+};
+
+struct SgTimeInfo {
+    static const SgObjectId ID = 6;
+
+    SG_SERIALIZE_ID;
+    SgTimeSpan totalTimePlayed;
+    SgDateTime lastSavedAt;
+    int32_t unknown001;
+};
+
+struct SgUnknown006 {
+    static const SgObjectId ID = 8;
+
+    SG_SERIALIZE_ID;
+    bool unknown001;
+    int32_t unknown002;
+};
+
+struct SgUnknown007Item {
+    int32_t unknown001;
+    int32_t unknown002;
+    int32_t unknown003;
+    int32_t unknown004;
+    int64_t unknown005[16] <optimize=false>;
+    int32_t unknown006;
+};
+
+struct SgUnknown007 {
+    static const SgObjectId ID = 10;
+
+    SG_SERIALIZE_ID;
+    SgUnknown007Item campaigns[2] <optimize=false>;
+};
+
+struct SgQuestsForestProgress {
+    struct SgQuestsForestProgress_Item {
+        int32_t unknown001;
+        int32_t unknown002;
+        int32_t unknown003;
+        bool unknown004;
+    };
+
+    static const SgObjectId ID = 11;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgQuestsForestProgress_Item items[count] <optimize=false>;
+};
+
+struct SgDifficulty1 {
+    static const SgObjectId ID = 12;
+
+    SG_SERIALIZE_ID;
+    int32_t value;
+};
+
+struct SgDifficulty2 {
+    static const SgObjectId ID = 13;
+
+    SG_SERIALIZE_ID;
+    int32_t value;
+};
+
+struct SgPositions {
+    static const SgObjectId ID = 7;
+
+    SG_SERIALIZE_ID;
+    SgVector3 unknown001;
+    SgVector3 unknown002;
+};
+
+struct SgUnknown009 {
+    static const SgObjectId ID = 15;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+    int32_t unknown002;
+};
+
+struct SgUnknown010 {
+    static const SgObjectId ID = 15;
+
+    SG_SERIALIZE_ID;
+    int16_t unknown001;
+};
+
+struct SgUnknown011 {
+    static const SgObjectId ID = 16;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+};
+
+struct SgUnknown004 {
+    static const SgObjectId ID = 3;
+
+    SG_SERIALIZE_ID;
+    String unknown001;
+    String unknown002;
+    String unknown003;
+};
+
+struct SgUnknown005 {
+    static const SgObjectId ID = 4;
+
+    SG_SERIALIZE_ID;
+    String hero;
+    // The current playthrough count.
+    // 0 = Regular game; >=1 = Game+
+    // This counter is incremented when a new game is started.
+    // Examples: 0 for the first playthrough.
+    //           1 for the second playthrough.
+    //           2 for the third playthrough.
+    int32_t playthroughNumber;
+    int32_t unknown001;
+    int32_t unknown002;
+    int32_t perkCount;
+    SgPerkInfo perks[perkCount] <optimize=false>;
+};
+
+struct SgCampaignInfoItem {
+    SgUnknown002 unknown001;
+    SgUnknown003 unknown002;
+    SgUnknown004 unknown003;
+    SgUnknown005 unknown004;
+    SgStoryInfo story;
+    SgTimeInfo time;
+    SgUnknown006 unknown005;
+    SgUnknown007 unknown006;
+    SgQuestsForestProgress questsForestProgress;
+    SgDifficulty1 difficulty1;
+    SgDifficulty2 difficulty2;
+    SgPositions positions;
+    SgUnknown009 unknown008;
+    SgUnknown010 unknown009;
+    SgUnknown011 unknown010;
+};
+
+struct SgCampaignInfo {
+    static const SgObjectId ID = 1;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgCampaignInfoItem items[count] <optimize=false>;
+};
+
+struct SgUnknown001 {
+    static const SgObjectId ID = 3;
+
+    SG_SERIALIZE_ID;
+    int32_t value; // 0 for new campaign saves, 1 after starting The Following
+};
+
+struct SgChunk101_SgStop {
+    static const SgObjectId ID = 1;
+
+    SG_SERIALIZE_ID;
+};
+
+struct SgChunk101 {
+    uint32_t chunkInnerSize;
+
+    SgChunk101_SgStart start;
+    SgVersion version;
+    SgCampaignInfo campaignInfo;
+    SgUnknown001 unknown001;
+    SgChunk101_SgStop stop;
+};
+
+#ifndef MAIN
+ data;
+#endif
+
+#endif

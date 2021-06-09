@@ -1,0 +1,1060 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author: Steffen A. Langnes
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION102_H
+#define SECTION102_H
+
+#include "include/Types.bt"
+
+struct SgChunk102_SgStart {
+    static const SgObjectId ID = 0;
+
+    SG_SERIALIZE_ID;
+};
+
+struct SgChunk102_SgStop {
+    static const SgObjectId ID = 8;
+
+    SG_SERIALIZE_ID;
+};
+
+enum SgItemColor {
+    White = 0,
+    Green = 1,
+    Blue = 2,
+    Violet = 3,
+    Orange = 4,
+    Platinum = 5
+};
+
+struct SgInventoryItem {
+    // This is stored as a 32-bit packed integer
+    struct Attributes {
+        int32_t packed;
+        // 3 bits: color
+        // 7 bits:
+        // Always 1 for melee weapons, 0 for throwables?
+        // Could be required level as with Dead Island.
+        // Value can be different for firearms but changing it seems to make no difference.
+        // Usage of remaining bits is unknown
+    };
+
+    int32_t id;
+    String name;
+    String craftPlan;
+    int64_t unknown002;
+    Attributes attributes;
+    int32_t quantity;
+    float condition;
+    int32_t repairs;
+    int32_t unknown004;
+    int32_t ammoId;
+    int32_t upgradeSocketCount;
+    String upgradeSockets[upgradeSocketCount] <optimize=false>;
+    bool unknown006;
+    bool unknown007;
+    int32_t unknown008;
+    bool unknown009;
+};
+
+struct SgInventory {
+    static const SgObjectId ID = 83;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgInventoryItem items[count] <optimize=false>;
+};
+
+/*
+enum struct SgInventoryGroupType {
+    Main,
+    Storage,
+    Locked,
+    Harran,
+    Hellraid
+};
+*/
+enum SgAmmoType {
+    None = -1,
+    Pistol,
+    Revolver,
+    Rifle,
+    SubMachine,
+    Shotgun,
+    Sniper,
+    Lightmachine,
+    TryLaunchRocket,
+    Arrow,
+    Bolt,
+    COUNT
+};
+
+struct SgAmmo {
+    struct SgAmmo_Map {
+        struct entry {
+            int32_t key;
+            int32_t value;
+        };
+
+        int32_t count;
+        entry entries[count] <optimize=false>;
+    };
+
+    static const SgObjectId ID = 2;
+
+    SG_SERIALIZE_ID;
+    /// Maps ammo ID to value
+    SgAmmo_Map items;
+};
+
+struct SgCollectables {
+    static const SgObjectId ID = 9;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    int32_t items[count]; // IDs
+};
+
+/**
+ * Inventory slots track the order of inventory items.
+ *
+ * The number of items is the same as the number of items in the inventory.
+ * If the position is -1 then the slot is available.
+ * A slot can be available e.g. when the number of items is below capacity or when the item is equipped.
+ * When an item is equipped then it is ordered in the quick slot list instead of the inventory slots list.
+ * A position equal to or greater than 0 is the position at which it should be displayed in the UI.
+ */
+struct SgInventorySlots {
+    static const SgObjectId ID = 40;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    int16_t slots[count];
+};
+
+struct SgHellraidWallet {
+    static const SgObjectId ID = 82;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown;
+};
+
+struct SgInventoryGroup {
+    enum type {
+        Main,
+        Storage,
+        Locked,
+        Harran,
+        Hellraid
+    };
+
+    SgInventory items1;
+    SgInventory items2;
+    SgInventory items3;
+    SgAmmo ammo;
+    SgCollectables collectables;
+    int32_t unknown001;
+    int32_t cash;
+    int32_t unknown003;
+    SgInventorySlots inventorySlots;
+    SgHellraidWallet hellraidWallet;
+};
+
+struct SgPlayerLevelItem {
+    String name;
+    int16_t unknown002;
+    int16_t level;
+    int64_t unknown004;
+    int32_t unknown005;
+};
+
+struct SgPlayerLevel {
+    static const SgObjectId ID = 72;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgPlayerLevelItem items[count] <optimize=false>;
+};
+
+struct SgQuickSlotsHand {
+    int32_t count;
+    int16_t slots[count];
+};
+
+struct SgQuickSlots {
+    static const SgObjectId ID = 26;
+
+    SG_SERIALIZE_ID;
+    int16_t unknown001;
+    int16_t unknown002;
+    // Sets of quick slots that have positions pointing into the inventory list
+    // The index of the list elements is the position in the UI
+    // Empty slots are marked with a value of -1
+    SgQuickSlotsHand hands[2] <optimize=false>;
+};
+
+struct SgTutorial {
+    struct SgTutorial_Item {
+        struct SgTutorial_Item2 {
+            int16_t unknown001;
+            int16_t unknown002;
+            int32_t unknown003;
+            bool unknown004;
+        };
+
+        bool unknown001;
+        bool unknown002;
+        int32_t count;
+        SgTutorial_Item2 items[count] <optimize=false>;
+    };
+
+    static const SgObjectId ID = 17;
+
+    SG_SERIALIZE_ID;
+    SgTutorial_Item items[26] <optimize=false>;
+};
+
+struct SgPlayerPrestigeLevel {
+    static const SgObjectId ID = 57;
+
+    SG_SERIALIZE_ID;
+    int16_t unknown001;
+};
+
+struct SgBtzPlatinumWeapons {
+    static const SgObjectId ID = 60;
+
+    SG_SERIALIZE_ID;
+    int16_t unknown001;
+};
+
+struct SgPlayerState {
+    static const SgObjectId ID = 3;
+
+    SG_SERIALIZE_ID;
+    int16_t unknown001;
+    int16_t unknown002;
+    bool unknown003;
+    bool unknown004;
+    int16_t unknown005;
+    int16_t unknown006[4];
+};
+
+struct SgSkill {
+    String name;
+    int16_t unknown001;
+    int32_t unknown002;
+    uint8_t unknown003; // TODO: Need to check if it's supposed to be a bool
+};
+
+struct SgSkills {
+    static const SgObjectId ID = 4;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgSkill items[count] <optimize=false>;
+};
+
+struct SgBuff {
+    String name;
+    int16_t stacks;
+};
+
+struct SgBuffs {
+    static const SgObjectId ID = 5;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgBuff items[count] <optimize=false>;
+};
+
+struct SgTimedBuff {
+    String name;
+    int16_t stacks;
+    float duration;
+};
+
+struct SgTimedBuffs {
+    static const SgObjectId ID = 6;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgTimedBuff items[count] <optimize=false>;
+};
+
+struct SgStats {
+    static const SgObjectId ID = 49;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    int32_t items[count];
+};
+
+struct SgAppearances {
+    static const SgObjectId ID = 32;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+    int32_t unknown002;
+    int32_t count;
+    int32_t items[count];
+};
+
+struct SgRewardsCampaigns {
+    struct SgRewardsCampaigns_Item {
+        struct  SgRewardsCampaigns_Item2 {
+            struct  SgRewardsCampaigns_Item3 {
+                struct  SgRewardsCampaigns_Item4 {
+                    int32_t unknown001;
+                    int32_t unknown002;
+                    int32_t unknown003;
+                    int32_t unknown004;
+                };
+
+                String unknown001;
+                int32_t count;
+                 SgRewardsCampaigns_Item4 items[count] <optimize=false>;
+            };
+
+            uint32_t mapId;
+            int32_t count;
+             SgRewardsCampaigns_Item3 items[count] <optimize=false>;
+        };
+
+        uint32_t animId;
+        int32_t count;
+        SgRewardsCampaigns_Item2 items[count] <optimize=false>;
+    };
+
+    static const SgObjectId ID = 77;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgRewardsCampaigns_Item items[count] <optimize=false>;
+};
+
+struct SgQuests {
+    struct SgQuests_Item {
+        uint32_t animId;
+        int32_t unknown001;
+        String unknown002;
+        int32_t unknown003;
+    };
+
+    static const SgObjectId ID = 75;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    SgQuests_Item items[count] <optimize=false>;
+};
+
+struct SgWallet {
+    static const SgObjectId ID = 11;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+    int32_t unknown002;
+    int32_t unknown003;
+    int32_t unknown004;
+    int32_t unknown005;
+    int32_t unknown006;
+    int32_t unknown007;
+    int32_t unknown008;
+    int32_t unknown009;
+    int32_t unknown010;
+    int32_t unknown011;
+    int32_t unknown012;
+    int32_t unknown013;
+    int32_t unknown014;
+    int32_t unknown015;
+    int32_t unknown016;
+};
+
+struct SgFury {
+    static const SgObjectId ID = 19;
+
+    SG_SERIALIZE_ID;
+    float value;
+};
+
+struct SgHealth {
+    static const SgObjectId ID = 23;
+
+    SG_SERIALIZE_ID;
+    float value;
+};
+
+struct SgIntoxication {
+    static const SgObjectId ID = 20;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+    int32_t unknown002;
+};
+
+struct SgPlayerState2 {
+    static const SgObjectId ID = 3;
+
+    SG_SERIALIZE_ID;
+    bool unknown001;
+    bool unknown002;
+    bool unknown003;
+    bool unknown004;
+    bool unknown005;
+    bool unknown006;
+    bool unknown007;
+    bool unknown008;
+    bool unknown009;
+    bool unknown010;
+    bool unknown011;
+    String unknown012;
+    bool unknown013;
+    bool unknown014;
+    int32_t unknown015;
+    int32_t unknown016;
+    bool unknown017;
+    bool unknown018;
+    bool unknown019;
+    bool unknown020;
+    bool unknown021;
+    bool unknown022;
+    bool unknown023;
+    bool unknown024;
+    bool unknown025;
+    bool unknown026;
+    bool unknown027;
+    int32_t unknown028;
+    bool unknown029;
+    bool unknown030;
+    bool unknown031;
+    bool unknown032;
+    bool unknown033;
+    int32_t unknown034;
+    int32_t unknown035;
+    int32_t unknown036Count;
+    String unknown036[unknown036Count] <optimize=false>;
+    String unknown037;
+    bool unknown038;
+    bool unknown039;
+    int32_t unknown040;
+};
+
+struct SgVisitedLocations {
+    static const SgObjectId ID = 12;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    int32_t items[count] <optimize=false>;
+};
+
+struct SgPinpointHashes {
+    static const SgObjectId ID = 13;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    int32_t items[count] <optimize=false>;
+};
+
+struct SgPinpointPositions {
+    static const SgObjectId ID = 14;
+
+    SG_SERIALIZE_ID;
+    SgVector3 items[hashes.count] <optimize=false>;
+
+    // The number of positions is the number of hashes so we serialize the items outside
+};
+
+struct SgPinpoints {
+    SgPinpointHashes hashes;
+    SgPinpointPositions positions;
+};
+
+struct SgFogOfWar {
+    struct Map {
+        int32_t unknown001;
+        int32_t count;
+        int32_t tileBlocks[count] <optimize=false>;
+    };
+
+    static const SgObjectId ID = 22;
+
+    SG_SERIALIZE_ID;
+    int32_t count;
+    Map maps[count] <optimize=false>;
+};
+
+struct SgDifficulty {
+    static const SgObjectId ID = 24;
+
+    SG_SERIALIZE_ID;
+    int32_t unknown001;
+    int32_t unknown002;
+};
+
+struct SgDaytime {
+    static const SgObjectId ID = 27;
+
+    SG_SERIALIZE_ID;
+    // When time >= 1.0, a day has elapsed
+    int32_t daysElapsed;
+    // 0.0 or greater = 00:00 or later, 0.5 = 12:00, less than 1.0 = earlier than 00:00.
+    // When the time becomes >=1.0, it resets back to 0.0.
+    // Conversion to seconds: (24*60*60)*time
+    float time;
+    int32_t unknown001;
+};
+
+struct SgExplorationActivities {
+    static const SgObjectId ID = 28;
+
+    SG_SERIALIZE_ID;
+};
+
+struct SgUniqueSessionId {
+    static const SgObjectId ID = 29;
+
+    SG_SERIALIZE_ID;
+    uint64_t value;
+};
+
+struct SgEquipmentSlots {
+    static const SgObjectId ID = 30;
+
+    SG_SERIALIZE_ID;
+    // Slots have positions pointing into the inventory list
+    // The index of the list elements is the position in the UI
+    // Empty slots are marked with a value of -1
+    int32_t count;
+    int16_t slots[count] <optimize=false>;
+};
+
+struct SgBringItems {
+    static const SgObjectId ID = 76;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            uint32 animId; // packed
+            int32 unknown001Count;
+            if (unknown001Count > 0) {
+                struct {
+                    int32 mapId; // packed
+                    int32 unknown001Count;
+                    if (unknown001Count > 0) {
+                        struct {
+                            String unknown001;
+                            int32 unknown001Count;
+                            if (unknown001Count > 0) {
+                                struct {
+                                    uint32 phaseUid; // packed
+                                    int64 unknown002;
+
+                                } unknown001Items[unknown001Count] <optimize=false>;
+                            }
+                        } unknown001Items[unknown001Count] <optimize=false>;
+                    }
+                } unknown001Items[unknown001Count] <optimize=false>;
+            }
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgPlsAwardsDeprecated {
+    static const SgObjectId ID = 34;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    Assert(unknown001Count == 0); // Need to investigate when > 0
+    if (unknown001Count > 0) {
+        struct {
+            int32 unknown001;
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgInfection {
+    static const SgObjectId ID = 35;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+    int32 unknown002;
+    int32 unknown003;
+    int32 unknown004;
+    int32 unknown005;
+};
+
+struct SgChallenges {
+    static const SgObjectId ID = 36;
+
+    SG_SERIALIZE_ID;
+
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown002;
+            int32 unknown003;
+            int32 unknown004;
+            bool unknown005;
+            bool unknown006;
+            bool unknown007;
+            bool unknown008;
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+
+    int32 unknown002;
+    bool unknown003;
+};
+
+struct SgAttributes {
+    static const SgObjectId ID = 37;
+
+    SG_SERIALIZE_ID;
+    int16 unknown001Count;
+    if (unknown001Count > 0) {
+        byte unknown001Data[unknown001Count << 3]; // Looks like multiple int32
+    }
+    int16 unknown002Count;
+    if (unknown002Count > 0) {
+        byte unknown002Data[unknown002Count]; // Looks like multiple float
+    }
+};
+
+struct SgWeather {
+    static const SgObjectId ID = 38;
+
+    SG_SERIALIZE_ID;
+    float unknown001;
+};
+
+struct SgPursuitBreakers {
+    static const SgObjectId ID = 39;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            String unknown001;
+            int32 unknown002Count;
+            if (unknown002Count > 0) {
+                bool unknown002[unknown002Count];
+            }
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgContainersEmptied {
+    static const SgObjectId ID = 42;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown002Count;
+            if (unknown002Count > 0) {
+                struct {
+                    float unknown001;
+                    float unknown002;
+                    float unknown003;
+                    int64 unknown004;
+                } unknown002[unknown002Count] <optimize=false>;
+            }
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgBoughtItems {
+    static const SgObjectId ID = 41;
+
+    SG_SERIALIZE_ID;
+    int32 Count;
+    if (Count > 0) {
+        struct {
+            struct {
+                String Name;
+                int32 unknown001;
+                int32 unknown002;
+                int32 unknown003;
+                int32 unknown004;
+            } unknown001;
+            int32 unknown002;
+        } Items[Count] <optimize=false>;
+    }
+};
+
+struct SgLastMapPortalName {
+    static const SgObjectId ID = 43;
+
+    SG_SERIALIZE_ID;
+    String Name;
+};
+
+struct SgPlsAwards {
+    static const SgObjectId ID = 44;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        String unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgDlcNotifications {
+    static const SgObjectId ID = 45;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        int32 unknown001[unknown001Count];
+    }
+};
+
+struct SgTutorialSensorState {
+    static const SgObjectId ID = 47;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown002Count;
+            struct {
+                String unknown001;
+                bool unknown002;
+                bool unknown003;
+            } unknown002[unknown002Count] <optimize=false>;
+        } unknown001[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgChallengesEvents {
+    static const SgObjectId ID = 48;
+
+    SG_SERIALIZE_ID;
+    struct {
+        struct {
+            int32 unknown001Count;
+            if (unknown001Count > 0) {
+                struct {
+                    bool unknown001;
+                } unknown001[unknown001Count] <optimize=false>;
+            }
+        } unknown001[110] <optimize=false>;
+    } unknown001[2] <optimize=false>;
+};
+
+struct SgRedeemedPlsPackageId {
+    static const SgObjectId ID = 51;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+};
+
+struct SgInvasionGracePeriod {
+    static const SgObjectId ID = 52;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+};
+
+struct SgInvasionReminder {
+    static const SgObjectId ID = 80;
+
+    SG_SERIALIZE_ID;
+    float unknown001;
+};
+
+struct SgDocketsInfo {
+    static const SgObjectId ID = 69;
+
+    SG_SERIALIZE_ID;
+    int32 Count;
+    Assert(Count > 0); // TODO: investigate when == 0
+    if (Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown001;
+        } Items[Count] <optimize=false>;
+    }
+};
+
+struct SgRedeemedDocketsCnt {
+    static const SgObjectId ID = 53;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+};
+
+struct SgStoredInventorySetup {
+    static const SgObjectId ID = 54;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        int32 unknown001[unknown001Count];
+    }
+};
+
+struct SgLootingPlatinumContainers {
+    static const SgObjectId ID = 55;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+};
+
+struct SgBozak {
+    static const SgObjectId ID = 58;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+};
+
+// Similar to ChallengesEvents_t
+struct SgTimeTrialChallenges {
+    static const SgObjectId ID = 59;
+
+    SG_SERIALIZE_ID;
+    struct {
+        struct {
+            int32 unknown001;
+            int32 unknown002;
+        } unknown001[110] <optimize=false>;
+    } unknown001[2] <optimize=false>;
+};
+
+struct SgBozakChallenges {
+    static const SgObjectId ID = 70;
+
+    SG_SERIALIZE_ID;
+    bool unknown001;
+    bool unknown002;
+    bool unknown003;
+};
+
+struct SgServerAchievements {
+    static const SgObjectId ID = 74;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown002Count;
+            byte unknown2Data[unknown002Count];
+        } unknown001Items[unknown001Count] <optimize=false>;
+    }
+};
+
+struct SgVehicleUpgrades {
+    static const SgObjectId ID = 78;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001;
+    if (unknown001 > 1) {
+        SgVector3 unknown002;
+        SgVector3 unknown003;
+        SgVector3 unknown004;
+    }
+    if (unknown001 > 2) {
+        float unknown005;
+        float unknown006;
+    }
+    if (unknown001 > 3) {
+        int32 unknown007;
+    }
+    if (unknown001 > 5) {
+        int32 unknown008;
+    }
+    if (unknown001 > 4) {
+        int32 unknown009;
+    }
+    // TODO: Reads more here if something is > 0
+    // Probably Vector3_t, Vector3_t, Vector3_t, int32 or float
+    if (unknown001 > 5) {
+        int32 unknown014;
+    }
+    int32 unknown015;
+    int32 unknown016Count;
+    if (unknown016Count > 0) {
+        struct {
+            int32 unknown001;
+            int32 unknown002Count;
+            struct {
+                bool unknown001;
+                if (!unknown001) {
+                    SgInventoryItem Item <read=InventoryItem_t_display>;
+                }
+            } unknown002Items[unknown002Count] <optimize=false>;
+        } unknown016Items[unknown016Count] <optimize=false>;
+    }
+};
+
+struct SgVehicleAppearances {
+    static const SgObjectId ID = 79;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        int32 unknown001Items[unknown001Count];
+    }
+};
+
+struct SgPrisonStageTime {
+    static const SgObjectId ID = 81;
+
+    SG_SERIALIZE_ID;
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        int32 unknown001Items[unknown001Count];
+    }
+};
+
+struct SgHellraidEquipmentFlag {
+    static const SgObjectId ID = 90;
+
+    SG_SERIALIZE_ID;
+    int8_t unknown;
+};
+
+struct SgBaseGameInventory {
+    static const SgObjectId ID = 84;
+
+    SG_SERIALIZE_ID;
+    SgInventoryGroup group;
+};
+
+struct SgHellraidInventory {
+    static const SgObjectId ID = 85;
+
+    SG_SERIALIZE_ID;
+    SgInventoryGroup group;
+};
+
+struct SgBaseGameQuickSlots {
+
+    static const SgObjectId ID = 86;
+
+    SG_SERIALIZE_ID;
+    SgQuickSlotsHand hands[2] <optimize=false>;
+};
+
+struct SgHellraidQuickSlots {
+    static const SgObjectId ID = 87;
+
+    SG_SERIALIZE_ID;
+    SgQuickSlotsHand hands[2] <optimize=false>;
+    int32_t unknown1Count;
+    int8_t unknown1[unknown1Count];
+    float unknown2;
+};
+
+struct SgBaseGameEquipmentSlots {
+    static const SgObjectId ID = 88;
+
+    SG_SERIALIZE_ID;
+    // Slots have positions pointing into the inventory list
+    // The index of the list elements is the position in the UI
+    // Empty slots are marked with a value of -1
+    int32_t count;
+    int16_t slots[count] <optimize=false>;
+};
+
+struct SgHellraidEquipmentSlots {
+    static const SgObjectId ID = 89;
+
+    SG_SERIALIZE_ID;
+    // Slots have positions pointing into the inventory list
+    // The index of the list elements is the position in the UI
+    // Empty slots are marked with a value of -1
+    int32_t count;
+    int16_t slots[count] <optimize=false>;
+};
+
+struct SgChunk102 {
+    static const SgChunkId ID = 102;
+
+    uint32_t chunkInnerSize;
+
+    SgChunk102_SgStart start;
+    SgInventoryGroup inventoryGroups[3] <optimize=false>;
+    SgBaseGameInventory baseGameInventory;
+    SgHellraidInventory hellraidInventory;
+    SgPlayerLevel playerLevel;
+    SgQuickSlots quickSlots;
+    SgBaseGameQuickSlots baseGameQuickSlots;
+    SgHellraidQuickSlots hellraidQuickSlots;
+    SgTutorial tutorial;
+    SgPlayerPrestigeLevel playerPrestigeLevel;
+    SgBtzPlatinumWeapons btzPlatinumWeapons;
+    SgPlayerState playerState;
+    SgSkills skills;
+    SgBuffs buffs;
+    SgTimedBuffs timedBuffs;
+    SgStats stats;
+    SgAppearances appearances;
+    SgRewardsCampaigns rewardsCampaigns;
+    SgQuests quests;
+    SgWallet wallet;
+    SgFury fury;
+    SgHealth health;
+    SgIntoxication intoxication;
+    SgPlayerState2 playerState2;
+    SgVisitedLocations visitedLocations;
+    SgPinpoints pinpoints;
+    SgFogOfWar fogOfWar;
+    SgDifficulty difficulty;
+    SgDaytime daytime;
+    SgExplorationActivities explorationActivities;
+    SgUniqueSessionId uniqueSessionId;
+    SgEquipmentSlots equipmentSlots;
+    SgBaseGameEquipmentSlots baseGameEquipmentSlots;
+    SgHellraidEquipmentSlots hellraidEquipmentSlots;
+    SgBringItems bringItems;
+    SgPlsAwardsDeprecated plsAwardsDeprecated;
+    SgInfection infection;
+    SgChallenges challenges;
+    SgAttributes attributes;
+    SgWeather weather;
+    SgPursuitBreakers pursuitBreakers;
+    SgContainersEmptied containersEmptied;
+    SgBoughtItems boughtItems;
+    SgLastMapPortalName lLastMapPortalName;
+    SgPlsAwards plsAwards;
+    SgDlcNotifications dlcNotifications;
+    SgTutorialSensorState tutorialSensorState;
+    SgChallengesEvents challengesEvents;
+    SgRedeemedPlsPackageId redeemedPlsPackageId;
+    SgInvasionGracePeriod invasionGracePeriod;
+    SgInvasionReminder invasionReminder;
+    SgDocketsInfo docketsInfo;
+
+    if (docketsInfo.Count == 0) {
+        SgRedeemedDocketsCnt redeemedDocketsCnt;
+    }
+
+    SgStoredInventorySetup storedInventorySetup;
+    SgLootingPlatinumContainers lootingPlatinumContainers;
+    SgBozak bozak;
+    SgTimeTrialChallenges timeTrialChallenges;
+    SgBozakChallenges bozakChallenges;
+    SgServerAchievements serverAchievements;
+    SgVehicleUpgrades vehicleUpgrades;
+    SgVehicleAppearances vehicleAppearances;
+    SgPrisonStageTime prisonStageTime;
+    SgHellraidEquipmentFlag hellraidEquipmentFlag;
+    SgChunk102_SgStop stop;
+};
+
+#ifndef MAIN
+SgChunk102 data;
+#endif
+
+#endif

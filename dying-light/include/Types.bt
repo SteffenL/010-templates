@@ -36,6 +36,7 @@ string t_ReadString(String& s)
 };
 
 typedef uint64 TimeSpan <read=t_ReadTimeSpan>;
+typedef TimeSpan SgTimeSpan;
 
 string t_ReadTimeSpan(TimeSpan ts)
 {
@@ -68,5 +69,25 @@ string t_ReadDateTime(DateTime& dt)
     SPrintf(s, "%02hu/%02hu/%04hu %02hu:%02hu", dt.Day, dt.Month, dt.Year, dt.Hour, dt.Minute);
     return s;
 };
+
+struct SgVector3 {
+    float x, y, z;
+};
+
+typedef uchar uint8_t;
+typedef char int8_t;
+typedef uint16 uint16_t;
+typedef int16 int16_t;
+typedef uint32 uint32_t;
+typedef int32 int32_t;
+typedef uint64 uint64_t;
+typedef int64 int64_t;
+
+#define static
+#define SG_SERIALIZE_ID { int32_t id; Assert(id == ID); }
+#define bool char
+
+typedef uint32_t SgChunkId;
+typedef uint32_t SgObjectId;
 
 #endif
