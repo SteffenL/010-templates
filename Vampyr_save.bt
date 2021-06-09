@@ -1,0 +1,162 @@
+//------------------------------------------------
+//--- 010 Editor v11.0 Binary Template
+//
+//      File: ue4savegame.ps4.sav
+//   Authors: Steffen A. Langnes <steffenl.sw@gmail.com>
+//   Version: 0.1
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct String {
+    int length;
+    if (length > 0) {
+        char data[length] <optimize=false>;
+    }
+};
+
+struct Property;
+
+struct ArrayProperty {
+    int64 length;
+    if (length > 0) {
+        Property element;
+    }
+};
+
+struct EnumProperty {
+    //char u1[8];
+    //String type;
+    //byte u2;
+    //String value;
+    int64 valueLength;
+    String type;
+    byte u1;
+    char value[valueLength] <optimize=false>;
+};
+
+struct IntProperty {
+};
+
+struct StrProperty {
+    int64 valueLength;
+    byte u1;
+    char value[valueLength] <optimize=false>;
+};
+
+struct StructProperty {
+    int64 valueLength;
+    String type;
+    char u1[8];
+    char value[valueLength] <optimize=false>;
+};
+
+struct TextProperty {
+    int64 valueLength;
+    byte u1;
+    char value[valueLength] <optimize=false>;
+    //String u2;
+    //String u3;
+};
+
+struct Property {
+    String name;
+    String type;
+    switch (type.data) {
+        case "ArrayProperty":
+            ArrayProperty detail;
+            break;
+        case "EnumProperty":
+            EnumProperty detail;
+            break;
+        case "StrProperty":
+            StrProperty detail;
+            break;
+        case "StructProperty":
+            StructProperty detail;
+            break;
+        case "TextProperty":
+            TextProperty detail;
+            break;
+    }
+};
+
+struct UE4Header {
+    char magic[8];
+    int u1;
+    char u2[14];
+    String version;
+};
+
+UE4Header ue4Header;
+int u1;
+String u2;
+char u3[8];
+int u4;
+Property properties1[5] <optimize=false>;
+String u5;
+Property properties2[2] <optimize=false>;
+String u6;
+Property properties3[1] <optimize=false>;
+
+// Vector
+//  char[17]
+//  float x
+//  float y
+//  float z
+
+/*struct StructProperty001 {
+    String name;
+    String type;
+
+    struct {
+        char u1[8];
+        String u2;
+        char u3[17];
+    } detail;
+
+    struct {
+        String name;
+        String type;
+        char u1[8];
+        String u2;
+        char u3[33];
+    } rotation;
+
+    struct {
+        String name;
+        String type;
+        char u1[8];
+        String u2;
+        char u3[29];
+    } translation;
+
+    struct {
+        String name;
+        String type;
+        char u1[8];
+        String u2;
+        char u3[29];
+    } scale3d;
+
+    String none;
+
+    struct {
+        String name;
+        String type;
+        char u1[13];
+        String u2;
+    } spawnPointActorPath;
+} sp001;*/
+
+
+// PathName
+//   StrProperty
+//   
+
+// IntProperty
+//   8 bytes: length in bytes
+//   <length> bytes for the value itself

@@ -1,0 +1,68 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author: Steffen A. Langnes
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef MAIN
+#define MAIN
+#endif
+
+#include "include/Types.bt"
+#include "Section101.bt"
+#include "Section102.bt"
+
+struct FileHeader
+{
+    int32 u1;
+    int32 u2;
+    int32 u3;
+    int32 Version;
+    int32 u5;
+};
+
+struct SectionHeader
+{
+    uint32 Id;
+    uint32 Size;
+};
+
+GameType identifyGameFromFileHeader()
+{
+    if (g_fileHeader.u1 == -1 &&
+        g_fileHeader.u2  == 0 &&
+        g_fileHeader.u3 >= 14 &&
+        g_fileHeader.Version >= 64 &&
+        g_fileHeader.u5 >= 20)
+    {
+        return GameType_DyingLight;
+    }
+
+    return GameType_Unknown;
+}
+
+FileHeader g_fileHeader;
+local GameType g_gameType = identifyGameFromFileHeader();
+Assert(g_gameType != GameType_Unknown);
+
+while (!FEof()) {
+    struct {
+        SectionHeader header;
+        switch (header.Id) {
+        case 101:
+            Section101 data;
+            break;
+        case 102:
+            Section102 data;
+            break;
+        default:
+            struct {
+                byte data[header.Size];
+            } section;
+            break;
+        }
+    } section;
+}

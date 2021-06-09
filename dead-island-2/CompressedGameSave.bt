@@ -1,0 +1,5 @@
+uint32 u1; // magic?
+uint32 u2; // version?
+uint32 uncompressedSize;
+uint32 compressedSize;
+ubyte compressedData[compressedSize]; // zlib

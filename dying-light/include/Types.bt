@@ -1,0 +1,72 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef TYPES_H
+#define TYPES_H
+
+typedef char bool;
+
+enum GameType
+{
+    GameType_Unknown,
+    GameType_DeadIsland,
+    GameType_Riptide,
+    GameType_DeadIsland_DE,
+    GameType_Riptide_DE,
+    GameType_DyingLight
+};
+
+typedef struct String_t
+{
+    uint16 Length;
+    if (Length > 0) {
+        char Data[Length];
+    }
+} String <read=t_ReadString>;
+
+string t_ReadString(String& s)
+{
+    return s.Length > 0 ? s.Data : "";
+};
+
+typedef uint64 TimeSpan <read=t_ReadTimeSpan>;
+
+string t_ReadTimeSpan(TimeSpan ts)
+{
+    uint64 tempTs = ts;
+    uint32 milliseconds = tempTs % 1000;
+    tempTs /= 1000;
+    uint32 seconds = tempTs % 60;
+    tempTs /= 60;
+    uint32 minutes = tempTs % 60;
+    tempTs /= 60;
+    uint32 hours = tempTs % 60;
+
+    string s;
+    SPrintf(s, "%02uh %02um %02us %03ums", hours, minutes, seconds, milliseconds);
+    return s;
+}
+
+typedef struct DateTime_t
+{
+    uint16 Year;
+    uint16 Month;
+    uint16 Day;
+    uint16 Hour;
+    uint16 Minute;
+} DateTime <read=t_ReadDateTime>;
+
+string t_ReadDateTime(DateTime& dt)
+{
+    string s;
+    SPrintf(s, "%02hu/%02hu/%04hu %02hu:%02hu", dt.Day, dt.Month, dt.Year, dt.Hour, dt.Minute);
+    return s;
+};
+
+#endif

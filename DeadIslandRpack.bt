@@ -1,0 +1,70 @@
+//--------------------------------------
+//--- 010 Editor v6.0.1 Binary Template
+//
+// File: Dying Light .rpack files
+// Author:MiRiKan, refer to Gibbed
+// Revision:0.1
+// Purpose:To decrypt Dying Light .rpack files
+//--------------------------------------
+LittleEndian();
+
+local uint i, pos, pos2;
+
+char header[3] <open=suppress>;
+char identity;
+uint version;
+uint flages;
+uint dataCount;
+uint typeCount;
+uint nameCount;
+uint nameDataSize;
+uint entryCount;
+uint Alignment;
+
+struct typeHeaders{
+    for (i = 0; i < typeCount; i++){
+        struct Deserialize1{
+            uint Flage;
+            uint Offset;
+            uint UncompressedSize;
+            uint CompressedSize;
+            uint16 ResourceCount;
+            uint16 unk;
+        }F;
+    }
+}HEADER;
+
+struct dataHeaders{
+    for (i = 0; i < dataCount; i++){
+        struct Deserialize2{
+            uint Flags;
+            uint Offset; //???? it was offset in chrome engine 5. But it looks something's changed now.
+            uint UncompressedSize;
+            uint CompressedSize;
+        }D;
+    }
+}DATA;
+
+struct entryHeaders{
+    for (i = 0; i < entryCount; i++){
+        struct Deserialize3{
+            uint Flags;
+            uint FirstNameIndex;
+            uint FirstDataIndex;
+        }D;
+    }
+}ENTRY;
+
+pos = FTell();
+struct Names{
+    for (i = 0; i < nameCount; i++){
+        struct FileName{
+            uint Off;
+            pos2 = FTell();
+            FSeek(pos + (nameCount * 4) + Off);
+            string name <open=suppress>;
+            FSeek(pos2);
+        }FN;
+    }
+}NAME;
+FSeek(pos + (nameCount * 8));
