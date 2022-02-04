@@ -1,0 +1,203 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: dying_light_2_save
+//   Authors: Steffen André Langnes
+//   Version: 0.1
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    uint16 length;
+    if (length > 0) {
+        char data[length];
+    }
+} string_t <read=read_string_t>;
+
+string read_string_t(string_t& s) {
+    return s.length > 0 ? s.data : "";
+};
+
+typedef struct {
+    string_t key;
+    uint16 value;
+} uint16_dictionary_entry_t <read=read_uint16_dictionary_entry_t>;
+
+string read_uint16_dictionary_entry_t(uint16_dictionary_entry_t& entry) {
+    return read_string_t(entry.key);
+};
+
+struct uint16_dictionary_t {
+    uint32 length;
+    if (length > 0) {
+        uint16_dictionary_entry_t entries[length] <optimize=false>;
+    }
+};
+
+struct string_vector_t {
+    uint32 length;
+    if (length > 0) {
+        string_t entries[length] <optimize=false>;
+    }
+};
+
+struct blob_t {
+    uint32 length;
+    if (length > 0) {
+        byte data[length];
+    }
+};
+
+struct blob_entry_t {
+    int32 a;
+    blob_t b;
+};
+
+typedef struct {
+    int32 a;
+    int32 b;
+    int32 c;
+    int64 d;
+    int32 e;
+    
+    string_t f;
+    uint16_dictionary_t g;
+} unknown_a_t;
+
+
+
+int32 a;
+int32 b;
+int32 c;
+int32 version;
+
+string_t x;
+int64 x;
+blob_t file_blob;
+FSkip(-file_blob.length);
+
+int32 i_length;
+int32 i_elements[i_length];
+
+int32 x;
+int32 x;
+byte x2[11];
+
+int32 x;
+byte x;
+int32 x;
+int32 x;
+byte x;
+int32 x;
+
+blob_entry_t blob_entries[19] <optimize=false>;
+
+
+/*
+int32 x;
+int32 x;
+
+string_t k;
+int32 l;
+int32 m_size;
+byte n_data[m_size];
+
+int32 o;
+int32 p;
+byte q;
+int32 r;
+int32 s;
+int32 t;
+int32 u;
+string_t v;*/
+
+
+
+
+/*
+FSkip(-m_size);
+
+byte o[5];
+
+int32 p;
+int32 q;
+int32 r;
+
+unknown_a_t s[8] <optimize=false>;
+
+int32 t[20];
+
+string_t u;
+int32 v;
+int64 w;
+
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+
+string_t x;
+
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+
+string_t x;
+
+byte v;
+int32 v;
+int32 v;
+int32 v;
+
+string_t x;
+int32 v;
+string_t x;
+int32 v;
+int32 v;
+int32 v;
+string_t x;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+int32 v;
+string_t x;
+int32 v;
+
+string_vector_t v;
+*/
