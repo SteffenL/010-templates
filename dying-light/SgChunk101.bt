@@ -205,6 +205,8 @@ struct SgCampaignInfo {
 
     SG_SERIALIZE_ID;
     int32_t count;
+    // 0: Base game
+    // 1: The Following
     SgCampaignInfoItem items[count] <optimize=false>;
 };
 
