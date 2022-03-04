@@ -1,0 +1,369 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: dying_light_2_save
+//   Authors: Steffen André Langnes
+//   Version: 0.1
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    uint16 length;
+    if (length > 0) {
+        char data[length];
+    }
+} string_t <read=read_string_t>;
+
+string read_string_t(string_t& s) {
+    return s.length > 0 ? s.data : "";
+};
+
+typedef struct {
+    string_t key;
+    uint16 value;
+} uint16_dictionary_entry_t <read=read_uint16_dictionary_entry_t>;
+
+string read_uint16_dictionary_entry_t(uint16_dictionary_entry_t& entry) {
+    return read_string_t(entry.key);
+};
+
+struct uint16_dictionary_t {
+    uint32 length;
+    if (length > 0) {
+        uint16_dictionary_entry_t entries[length] <optimize=false>;
+    }
+};
+
+struct string_vector_t {
+    uint32 length;
+    if (length > 0) {
+        string_t elements[length] <optimize=false>;
+    }
+};
+
+struct byte_vector_t {
+    uint32 length;
+    if (length > 0) {
+        byte elements[length];
+    }
+};
+
+struct data_chunk_header_t {
+    int32 a;
+    int32 b;
+    int32 size;
+};
+
+struct blob_t {
+    uint32 length;
+    if (length > 0) {
+        byte data[length];
+    }
+};
+
+struct rtti_field_t {
+    string_t field_name;
+    int16 x3;
+};
+
+string read_rtti_field_t(rtti_field_t& field) {
+    return read_string_t(field.field_name);
+};
+
+struct rtti_fields_t {
+    int32 field_count;
+    rtti_field_t fields[field_count] <optimize=false, read=read_rtti_field_t>;
+};
+
+struct rtti_info_t {
+    int64 a;
+    int32 b;
+    string_t class_name;
+    rtti_fields_t fields;
+};
+
+struct vector3_t {
+    float x, y, z;
+};
+
+struct child_sg_chunk_t {
+    int32 element_type;
+    switch (element_type) {
+        case 1:
+        case 2: {
+            int32 a;
+            //element_version
+            string_t rtti_name;
+            int32 b;
+            break;
+        }
+    }
+    switch (element_type) {
+        case 1: {
+            blob_t c;
+            FSkip(-c.length);
+            byte h;
+            blob_t i;
+            FSkip(-i.length);
+            data_chunk_header_t rtti_data_chunk_header;
+            Assert(rtti_data_chunk_header.a == 0x44444753); // SGDD
+            //FSkip(-data_chunk.size);
+            struct {
+                local uint64 start = FTell();
+                while (FTell() < start + rtti_data_chunk_header.size) {
+                    data_chunk_header_t data_chunk2;
+                    Assert(data_chunk2.a == 0x64444753); // SGDd
+                    rtti_info_t rtti_info;
+                }
+            } rtti_data_chunk_data;
+
+            data_chunk_header_t data_chunk2;
+            Assert(data_chunk2.a == 0x6D474453); // SDGm
+            uint64 data_chunk2_data;
+
+            data_chunk_header_t data_chunk3_header;
+            Assert(data_chunk3_header.a == 0x53444753);
+            struct {
+                data_chunk_header_t data_chunk4_header_SGDs_0;
+                Assert(data_chunk4_header_SGDs_0.a == 0x73444753); // SGDs
+                // is_data_chunk = (0x73444753 + 0x9FFFFFFF) ...
+                struct { // Savegame::GameInfo
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int64 m_SaveVersion;
+                    int64 m_DataContainer;
+                    struct {
+                        int32 a;
+                        string_t b;
+                    } m_LastPlayedGameType;
+                    int32 m_EmbeddedElements;
+                    int32 m_GameType;
+                    int32 m_MapId;
+                } data_chunk4_data_SGDs_0;
+                data_chunk_header_t data_chunk4_header_SGDs_1;
+                struct { // Savegame::VersionId
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 m_Id;
+                    string_t m_Name;
+                } data_chunk4_data_SGDs_1;
+                data_chunk_header_t data_chunk4_header_SGDs_2;
+                struct {
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 c;
+                    int64 d;
+                } data_chunk4_data_SGDs_2;
+                data_chunk_header_t data_chunk4_header_SGDs_3;
+                struct { // Savegame::GameTypeInfo
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 c;
+                    int32 m_GameSessionId;
+                    string_t m_GameType;
+                    byte m_MultiplayerBlockade;
+                    int64 m_StoryInfo;
+                    struct {
+                        int32 a;
+                        string_t b;
+                    } m_Difficulty;
+                    struct {
+                        int32 a;
+                        string_t b;
+                    } m_MinDifficulty;
+                    struct {
+                        int32 a;
+                        string_t b;
+                    } m_FinishedDifficulty;
+                    int64 m_SpawnSpot;
+                    struct {
+                        int32 length;
+                        int32 elements[length];
+                    } m_PlayerLevel;
+                    int32 m_PlayerProgress;
+                    string_t m_CharacterPreset;
+                    int32 m_PlayerAppearanceId;
+                    string_vector_t m_PlayerOutfitParts;
+                    byte m_Played;
+                    int64 m_TimePlayed;
+                    int64 m_LastPlayDateTime;
+                    int32 m_AbsoluteTime;
+                    byte m_CampaignFinished;
+                    int32 m_GamePlus;
+                    int16 m_CityAlignemntPK; // PK = Pacekeeper?
+                    int16 m_CityAlignemntSurv; // Suv = Survivor?
+                    int64 m_FirstVersion;
+                    int64 m_Version;
+                } data_chunk4_data_SGDs_3;
+                data_chunk_header_t data_chunk4_header_SGDs_4;
+                struct {
+                    byte c[data_chunk4_header_SGDs_4.size];
+                } data_chunk4_data_SGDs_4;
+                data_chunk_header_t data_chunk4_header_SGDs_5;
+                struct { // Savegame::SpawnSpot
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 c;
+                    string_t m_SpotType;
+                    string_t m_MapName;
+                    int16 m_MapArea;
+                    string_t m_SpawnPoint;
+                    vector3_t m_Pos;
+                    vector3_t m_Dir;
+                } data_chunk4_data_SGDs_5;
+                data_chunk_header_t data_chunk4_header_SGDs_6;
+                struct { // Savegame::DateTime
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 m_Year;
+                    int32 m_Month;
+                    int32 m_Day;
+                    int32 m_DayOfWeek;
+                    int32 m_Hour;
+                    int32 m_Minute;
+                    int32 m_Second;
+                    int32 m_Milliseconds;
+                } data_chunk4_data_SGDs_6;
+                data_chunk_header_t data_chunk4_header_SGDs_7;
+                struct { // Savegame::VersionInfo
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int64 m_Save;
+                    string_t m_Build;
+                    string_t m_PerforceStream;
+                } data_chunk4_data_SGDs_7;
+                data_chunk_header_t data_chunk4_header_SGDs_8;
+                struct { // Savegame::VersionInfo
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int64 m_Save;
+                    string_t m_Build;
+                    string_t m_PerforceStream;
+                } data_chunk4_data_SGDs_8;
+                data_chunk_header_t data_chunk4_header_SGDs_9;
+                struct { // Savegame::VersionId
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 m_Id;
+                    string_t m_Name;
+                } data_chunk4_data_SGDs_9;
+                data_chunk_header_t data_chunk4_header_SGDs_10;
+                struct { // Savegame::VersionId
+                    // before every chunk
+                    int64 a;
+                    int64 b;
+//
+                    int32 m_Id;
+                    string_t m_Name;
+                } data_chunk4_data_SGDs_10;
+            } data_chunk3_data;
+
+            /*struct {
+                local uint64 start = FTell();
+                while (FTell() < start + data_chunk3_header.size) {
+                    data_chunk_header_t data_chunk4;
+                    //rtti_info_t rtti_info;
+break;
+                }
+            } data_chunk3_data;*/
+            /*struct {
+                local uint64 start = FTell();
+                while (FTell() < start + data_chunk3.size) {
+                    data_chunk_header_t data_chunk4;
+                    if (data_chunk4.a == 0x73444753) {
+                        int64 data_chunk4_data2;
+                        int64 data_chunk4_data3;
+                        int64 data_chunk4_data4;
+                        int64 data_chunk4_data5;
+                        int32 data_chunk4_data6;
+                        string_t data_chunk4_data7;
+                        int32 data_chunk4_data8;
+                        int32 data_chunk4_data9;
+                        int32 data_chunk4_data10;
+                    } else {
+                        Assert(false);
+                    }
+                }
+            } data_chunk_data3_data;*/
+            break;
+        }
+        case 2: { // this is just guesswork
+            int32 d;
+            byte e;
+            int32 f;
+            blob_t g;
+            break;
+        }
+    }
+};
+
+struct element_header_t {
+    int32 a;
+    int32 size;
+    local uint64 offset = FTell();
+    //FSkip(-blob.length);
+    //child_sg_chunk_t chunk;
+    //FSeek(end_offset);
+    FSkip(size);
+};
+
+struct element_t {
+    int32 element_type;
+    int64 a;
+    int64 b;
+
+};
+
+struct elements_t {
+    int32 length;
+    int32 types[length];
+    element_header_t headers[length] <optimize=false>;
+    local int32 i;
+    for (i = 0; i < length; ++i) {
+        FSeek(headers[i].offset);
+        element_t element;
+    }
+//Assert(element.chunk.element_type == types[i]);
+};
+
+struct elements_blob_t {
+    int32 size;
+    elements_t elements;
+};
+
+int32 a;
+int32 b;
+int32 c;
+int32 version;
+
+string_t d;
+string_t e;
+int32 f;
+
+//blob_header_t state_elements_blob_header;
+//FSeek(state_elements_blob_header.offset);
+//state_elements_t data;
+
+elements_blob_t elements_blob;
