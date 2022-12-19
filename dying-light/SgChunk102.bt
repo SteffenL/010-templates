@@ -924,6 +924,13 @@ struct SgHellraidEquipmentFlag {
     int8_t unknown;
 };
 
+struct SgBozakEquipmentFlag {
+    static const SgObjectId ID = 91;
+
+    SG_SERIALIZE_ID;
+    int8_t unknown;
+};
+
 struct SgBaseGameInventory {
     static const SgObjectId ID = 84;
 
@@ -1050,6 +1057,7 @@ struct SgChunk102 {
     SgVehicleAppearances vehicleAppearances;
     SgPrisonStageTime prisonStageTime;
     SgHellraidEquipmentFlag hellraidEquipmentFlag;
+    SgBozakEquipmentFlag bozakEquipmentFlag;
     SgChunk102_SgStop stop;
 };
 
