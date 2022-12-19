@@ -1,0 +1,61 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: dying_light_2_sbinloc.bt
+//   Authors: Steffen André Langnes
+//   Version: 0.1
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+typedef struct {
+    uint16 length;
+    if (length > 0) {
+        char data[length];
+    }
+} string_t <read=read_string_t>;
+
+string read_string_t(string_t& s) {
+    return s.length > 0 ? s.data : "";
+};
+
+struct string_vector_t {
+    uint32 length;
+    if (length > 0) {
+        string_t entries[length] <optimize=false>;
+    }
+};
+
+struct int8_vector_t {
+    uint32 length;
+    if (length > 0) {
+        char entries[length] <optimize=false>;
+    }
+};
+
+struct chunk_t (byte fieldType) {
+    uint32 size;
+    if (fieldType == 30) {
+        string_vector_t data;
+    } else if (fieldType == 43) {
+        int8_vector_t data;
+    }
+};
+
+struct field_t {
+    byte fieldType;
+    string_t fieldName;
+    chunk_t chunk(fieldType);
+};
+
+uint32 maybeVersion;
+string_t className;
+uint64 maybePointer;
+field_t keys;
+field_t values;
+field_t intKeys;
+byte maybeEndMarker;
