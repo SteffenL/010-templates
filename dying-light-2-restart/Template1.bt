@@ -1,0 +1,41 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+/*
+# Notes
+
+## gamedll strings
+
+```
+.rdata:00000001828C1478	0000002C	C	Savegame::StateElement::SaveCustomDataChunk
+.rdata:00000001828C14A8	0000002C	C	Savegame::StateElement::LoadCustomDataChunk
+.rdata:00000001828C14D8	0000002A	C	Savegame::StateElement::SaveRttiDataChunk
+.rdata:00000001828C1508	0000002A	C	Savegame::StateElement::LoadRttiDataChunk
+```
+
+
+
+*/
+
+
+struct String {
+    uint16 length;
+    char data[length];
+};
+
+int32 u0001;
+uint32 u0002;
+uint32 u0003;
+uint32 u0004;
+String u0005;
+String u0006;
