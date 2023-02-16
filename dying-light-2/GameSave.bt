@@ -59,6 +59,13 @@ struct byte_vector_t {
     }
 };
 
+struct int16_vector_t {
+    uint32 length;
+    if (length > 0) {
+        int16 elements[length] <optimize=false>;
+    }
+};
+
 struct int32_vector_t {
     uint32 length;
     if (length > 0) {
@@ -115,7 +122,7 @@ enum rtti_data_type_t {
     RTTI_DATA_TYPE_VECTOR_OF_STRING = 30, // Savegame::GameTypeInfo::m_PlayerOutfitParts
     RTTI_DATA_TYPE_U0039 = 39, // Story::Savegame::Info::{m_Campaigns, m_Objectives}, Savegame::PersistentStorage::CampaignState::{m_DataDescription, m_Data, m_DataPresence, }
     RTTI_DATA_TYPE_VECTOR_OF_BYTE = 40, // Savegame::ServerAchievement::State::{m_Data}
-    RTTI_DATA_TYPE_U0041 = 41, // Savegame::ProgressionState::{m_LegendRewardReceivedUids}
+    RTTI_DATA_TYPE_VECTOR_OF_INT16 = 41, // Savegame::ProgressionState::{m_LegendRewardReceivedUids}
     RTTI_DATA_TYPE_VECTOR_OF_INT32 = 43, // Savegame::GameTypeInfo::{m_PlayerLevel}
     RTTI_DATA_TYPE_U0044 = 44, // Savegame::Looting::ContainerId::{m_CPath}, Savegame::Roaming::FovMapTiles::{m_Data}
     RTTI_DATA_TYPE_VECTOR_OF_POINTER = 56, // Savegame::GameTypeInfoContainer::{m_Data}
@@ -429,6 +436,8 @@ struct element_t {
                                         local string type_string = "";
                                         local string value_string = "";
                                         local string name = "";
+                                        local int value_element_index = 0;
+                                        local byte enable_dump = 1;
                                         for (class_index = 0; class_index < d_data.items.count; ++class_index) {
                                              rtti_index = d_data.items.item[class_index].b_data.rtti_info.index;
                                             if (data_index == rtti_index) {
@@ -452,8 +461,8 @@ struct element_t {
                                                 }*/
                                                 /*if (Strcmp(class_name, "Savegame::ProgressionState") == 0) {
                                                     pointer_vector_t m_Buckets;
-                                                    uint64_vector_t m_QuestRewardsWithLegend; // Need verification
-                                                    uint64_vector_t m_LegendRewardReceivedUids; // Need verification
+                                                    uint64_vector_t m_QuestRewardsWithLegend;
+                                                    int16_vector_t m_LegendRewardReceivedUids;
                                                     byte m_IsLegendLevelFromServer;
                                                     byte m_LastServerInfo;
                                                     byte m_LLResetAllowed;
@@ -473,13 +482,13 @@ struct element_t {
                                                     float m_EffectTimeLeft;
                                                     break;
                                                 }
-                                                /*if (Strcmp(class_name, "Savegame::Looting::ContainerId") == 0) {
+                                                if (Strcmp(class_name, "Savegame::Looting::ContainerId") == 0) {
                                                     uint64 m_Guid;
                                                     int32 m_CPath;
                                                     Assert(m_CPath == 0, Str("TODO: member %s of class %s", "m_CPath", class_name));
                                                     string_t m_Path;
                                                     break;
-                                                }*/
+                                                }
                                                 if (Strcmp(class_name, "Savegame::Challenges::Challenge") == 0) {
                                                     uint32 m_Id;
                                                     uint32 m_BestResult;
@@ -502,8 +511,10 @@ struct element_t {
                                                     uint32 m_Data_d[m_Data_c];
                                                     break;
                                                 }*/
-                                                //Printf("Class: %s\n", class_name);
-                                                //Printf("  Fields:\n");
+                                                if (enable_dump) {
+                                                    Printf("Class: %s [id = %u]\n", class_name, id);
+                                                    Printf("  Fields:\n");
+                                                }
                                                 for (field_index = 0; field_index < d_data.items.item[class_index].b_data.rtti_info.fields.count; ++field_index) {
                                                     type = d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].type;
                                                     name = read_string_t(d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].name);
@@ -582,12 +593,21 @@ struct element_t {
                                                             SPrintf(value_string, "[count = %u]", value.length);
                                                             break;
                                                         case RTTI_DATA_TYPE_VECTOR_OF_POINTER:
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_POINTER_86:
                                                             type_string = "vector<pointer>";
                                                             pointer_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u] {\n", value.length);
+                                                            for (value_element_index = 0; value_element_index < value.length; ++value_element_index) {
+                                                                Strcat(value_string, Str("        %u\n", value.elements[value_element_index]));
+                                                            }
+                                                            Strcat(value_string, "      }");
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_INT16:
+                                                            type_string = "vector<int16>";
+                                                            int16_vector_t value <name="value">;
                                                             SPrintf(value_string, "[count = %u]", value.length);
                                                             break;
                                                         case RTTI_DATA_TYPE_VECTOR_OF_UINT64:
-                                                        case RTTI_DATA_TYPE_U0041:
                                                             type_string = "vector<uint64>";
                                                             uint64_vector_t value <name="value">;
                                                             SPrintf(value_string, "[count = %u]", value.length);
@@ -597,21 +617,19 @@ struct element_t {
                                                             rtt_pointer_t value <name="value">;
                                                             SPrintf(value_string, "%u", value);
                                                             break;
-                                                        case RTTI_DATA_TYPE_VECTOR_OF_POINTER_86:
-                                                            type_string = "vector<pointer>";
-                                                            pointer_vector_t value <name="value">;
-                                                            SPrintf(value_string, "[count = %u]", value.length);
-                                                            break;
                                                         default:
                                                             //type_string = "unknown";
                                                             //value_string = "[unknown]";
                                                             Assert(0, Str("Unknown type %u of %s::{%s}", type, class_name, name));
                                                             break;
                                                     }
-                                                    //Printf("    Field #%d:\n", field_index);
-                                                    //Printf("      Name: %s\n", name);
-                                                    //Printf("      Type: %s (%u)\n", type_string, type);
-                                                    //Printf("      Value: %s\n", value_string);
+                                                    if (enable_dump) {
+                                                        Printf("    Field #%d:\n", field_index);
+                                                        Printf("      Name: %s\n", name);
+                                                        Printf("      Type: %s (%u)\n", type_string, type);
+                                                        Printf("      Value: %s\n", value_string);
+                                                    }
+
                                                     /*switch (d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].type) {
                                                         case RTTI_DATA_TYPE_BOOL:
                                                             byte value;
