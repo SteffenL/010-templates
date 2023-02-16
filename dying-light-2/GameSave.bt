@@ -14,12 +14,17 @@
 typedef struct {
     uint16 length;
     if (length > 0) {
-        char data[length];
+        char data[length] <optimize=false>;
     }
 } string_t <read=read_string_t>;
 
 string read_string_t(string_t& s) {
-    return s.length > 0 ? s.data : "";
+    local string result = "";
+    if (s.length > 0) {
+        Strncpy(result, s.data, s.length);
+     }
+    //return s.length > 0 ? s.data : "";
+    return result;
 };
 
 typedef struct {
@@ -38,6 +43,8 @@ struct uint16_dictionary_t {
     }
 };
 
+typedef uint64 rtt_pointer_t;
+
 struct string_vector_t {
     uint32 length;
     if (length > 0) {
@@ -48,7 +55,28 @@ struct string_vector_t {
 struct byte_vector_t {
     uint32 length;
     if (length > 0) {
-        byte elements[length];
+        byte elements[length] <optimize=false>;
+    }
+};
+
+struct int32_vector_t {
+    uint32 length;
+    if (length > 0) {
+        int32 elements[length] <optimize=false>;
+    }
+};
+
+struct uint64_vector_t {
+    uint32 length;
+    if (length > 0) {
+        uint64 elements[length] <optimize=false>;
+    }
+};
+
+struct pointer_vector_t {
+    uint32 length;
+    if (length > 0) {
+        rtt_pointer_t elements[length] <optimize=false>;
     }
 };
 
@@ -67,8 +95,35 @@ struct blob_header_t {
 struct blob_t {
     uint32 length;
     if (length > 0) {
-        byte data[length];
+        byte data[length] <optimize=false>;
     }
+};
+
+enum rtti_data_type_t {
+    RTTI_DATA_TYPE_INT8 = 2, // Skills::SkillInstance::{m_SkillSlot}
+    RTTI_DATA_TYPE_INT16 = 3, // signed, Savegame::GameTypeInfo::{m_CityAlignemntPK, m_CityAlignemntSurv}
+    RTTI_DATA_TYPE_INT32 = 5, // signed
+    RTTI_DATA_TYPE_UINT32 = 6, // unsigned, Story::Savegame::Info{m_Chapter, m_Crc}
+    RTTI_DATA_TYPE_UINT64 = 7, // likely - Savegame::GameTypeInfo::{m_TimePlayed, m_PlaythroughStartTime}, Story::Savegame::Info::{m_QuestId, m_QuestCampaignId}, Story::Savegame::CampaignRewards::{m_CampaignId}
+    RTTI_DATA_TYPE_U008 = 8, // maybe uint32 - Savegame::StoryAgentsState::Agent::{m_Points, m_Hash}, Savegame::Looting::ContainerId::{m_Guid}
+    RTTI_DATA_TYPE_FLOAT = 9, // Savegame::GameTypeInfo::{m_AbsoluteTime}
+    RTTI_DATA_TYPE_BOOL = 11, // Savegame::GameTypeInfo::{m_MultiplayerBlockade, m_Played, m_CampaignFinished, m_LegendLevelUnlocked}
+    RTTI_DATA_TYPE_STRING = 12, // Savegame::GameTypeInfo::{m_CharacterPreset}
+    RTTI_DATA_TYPE_VECTOR3 = 14, // likely
+    RTTI_DATA_TYPE_INT32_STRING_PAIR = 20, // Savegame::SpawnSpot::m_SpotType, Savegame::GameTypeInfo::{m_GameType, m_Difficulty}, Savegame::GameInfo::{m_LastPlayedGameType}
+    RTTI_DATA_TYPE_VECTOR_OF_UINT64_25 = 25, // Savegame::GameInfo::{m_EmbeddedElements}
+    RTTI_DATA_TYPE_VECTOR_OF_STRING = 30, // Savegame::GameTypeInfo::m_PlayerOutfitParts
+    RTTI_DATA_TYPE_U0039 = 39, // Story::Savegame::Info::{m_Campaigns, m_Objectives}, Savegame::PersistentStorage::CampaignState::{m_DataDescription, m_Data, m_DataPresence, }
+    RTTI_DATA_TYPE_VECTOR_OF_BYTE = 40, // Savegame::ServerAchievement::State::{m_Data}
+    RTTI_DATA_TYPE_U0041 = 41, // Savegame::ProgressionState::{m_LegendRewardReceivedUids}
+    RTTI_DATA_TYPE_VECTOR_OF_INT32 = 43, // Savegame::GameTypeInfo::{m_PlayerLevel}
+    RTTI_DATA_TYPE_U0044 = 44, // Savegame::Looting::ContainerId::{m_CPath}, Savegame::Roaming::FovMapTiles::{m_Data}
+    RTTI_DATA_TYPE_VECTOR_OF_POINTER = 56, // Savegame::GameTypeInfoContainer::{m_Data}
+    RTTI_DATA_TYPE_VECTOR_OF_UINT64 = 57, // likely - Story::Savegame::Info::{m_Campaigns}, Story::Savegame::CampaignRewards::{m_OwnersUid}, Savegame::ProgressionState::{m_QuestRewardsWithLegend}
+    RTTI_DATA_TYPE_VECTOR_OF_U0059 = 59, // Savegame::Difficulty::Trigger::{m_EventInstances}
+    RTTI_DATA_TYPE_U0061 = 61, // class Savegame::Challenges::Challenge::{m_TriggersData}
+    RTTI_DATA_TYPE_POINTER = 85, // Savegame::GameTypeInfo::{m_StoryInfo, m_SpawnSpot, m_LastPlayDateTime}
+    RTTI_DATA_TYPE_VECTOR_OF_POINTER_86 = 86, // Savegame::GameTypeInfo::{m_Versions}, Savegame::GameInfo::{m_SaveVersion, m_Backup, m_DataContainer}
 };
 
 struct rtti_field_t {
@@ -86,8 +141,8 @@ struct rtti_fields_t {
 };
 
 struct rtti_info_t {
-    int64 index;
-    int32 b;
+    uint64 index;
+    int32 likely_version;
     string_t class_name;
     rtti_fields_t fields;
 };
@@ -102,13 +157,17 @@ struct element_blob_header_t {
     local uint64 offset = FTell();
 };
 
+struct int32_string_pair_t {
+    int32 first;
+    string_t second;
+};
+
+/*
 enum element_type_t {
     ET_CLASS = 1
 };
 
-typedef uint64 rtt_pointer_t;
-
-struct class_element_t {
+struct class_element_t_ {
     int32 a; // version?
     string_t class_name;
     int32 b;
@@ -214,7 +273,7 @@ struct class_element_t {
                                     byte m_CampaignFinished; // game v1.03
                                     int32 m_GamePlus;
                                     int16 m_CityAlignemntPK; // PK = Pacekeeper?
-                                    int16 m_CityAlignemntSurv; // Suv = Survivor?
+                                    int16 m_CityAlignemntSurv; // Surv = Survivor?
                                     rtt_pointer_t m_FirstVersion;
                                     rtt_pointer_t m_Version;
                                 } Savegame__GameTypeInfo;
@@ -286,6 +345,431 @@ struct class_element_t {
             } chunk3_data;
         } blob;
     } blob;
+}
+
+
+struct class_element_t {
+    int32 a; // version?
+    string_t class_name;
+    int32 b;
+};;*/
+
+struct element_t {
+    byte a;
+    if (a) {
+        uint32 size;
+        union {
+            byte raw[size];
+            struct {
+                /*data_chunk_header_t rtti_data_chunk_header;
+                Assert(rtti_data_chunk_header.magic == 0x44444753); // SGDD
+                uint32 magic;
+                Assert(magic == 0x64444753); // SGDd
+                rtti_info_t rtti_info;*/
+                int32 a;
+                Assert(a == 0x44444753); // SGDD
+                int32 b;
+                int64 c;
+        
+                int32 d_size;
+                union {
+                    byte raw[d_size];
+                    struct {
+                        local uint32 count = 0;
+                        local uint64 start = FTell();
+                        while (FTell() < start + d_size) {
+                            struct {
+                                uint32 magic;
+                                Assert(magic == 0x64444753); // SGDd
+                                int32 a;
+                                int32 b_size;
+                                union {
+                                    byte raw[b_size];
+                                    rtti_info_t rtti_info;
+                                } b_data;
+                                ++count;
+                            } item;
+                        }
+                    } items;
+                } d_data;
+        
+                int32 e;
+                Assert(e == 0x6D444753); // SGDm
+                int32 f;
+                int32 g; // maybe this is the size of the data below (8 bytes fits nicely)
+                int64 h; // maybe 2 x int32
+        
+                int32 i;
+                Assert(i == 0x53444753); // SGDS
+                int32 j;
+                int64 k;
+        
+                int32 l_size;
+                union {
+                    byte raw[l_size];
+                    struct {
+                        local uint32 count = 0;
+                        local uint64 start = FTell();
+                        while (FTell() < start + l_size) {
+                            struct {
+                                uint32 magic;
+                                Assert(magic == 0x73444753); // SGDs
+                                int32 a;
+                                int32 b_size;
+                                union {
+                                    byte raw[b_size];
+                                    struct {
+                                        rtt_pointer_t id;
+                                        uint64 data_index;
+                                        local string class_name = "";
+                                        local uint32 class_index = 0;
+                                        local uint64 rtti_index = 0;
+                                        local uint32 field_index = 0;
+                                        local uint32 type = 0;
+                                        local string type_string = "";
+                                        local string value_string = "";
+                                        local string name = "";
+                                        for (class_index = 0; class_index < d_data.items.count; ++class_index) {
+                                             rtti_index = d_data.items.item[class_index].b_data.rtti_info.index;
+                                            if (data_index == rtti_index) {
+                                                class_name = read_string_t(d_data.items.item[class_index].b_data.rtti_info.class_name);
+                                                /*if (Strcmp(class_name, "Savegame::PersistentStorage::CampaignState") == 0) {
+                                                    int32 m_DataFormat;
+                                                    byte_vector_t m_DataDescription;
+                                                    byte_vector_t m_Data;
+                                                    byte_vector_t m_DataPresence;
+                                                    uint64 m_Hash;
+                                                    uint32 m_EmbeddedElements_count; // ?
+                                                    //uint32 m_EmbeddedElements_items[m_EmbeddedElements_count];
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                }*/
+                                                /*if (Strcmp(class_name, "Skills::SkillInstance") == 0) {
+                                                    string_t m_NameId;
+                                                    int16 m_SkillLevel;
+                                                    int16 m_SkillSlot;
+                                                    int32_string_pair_t m_LearnMethod;
+                                                }*/
+                                                /*if (Strcmp(class_name, "Savegame::ProgressionState") == 0) {
+                                                    pointer_vector_t m_Buckets;
+                                                    uint64_vector_t m_QuestRewardsWithLegend; // Need verification
+                                                    uint64_vector_t m_LegendRewardReceivedUids; // Need verification
+                                                    byte m_IsLegendLevelFromServer;
+                                                    byte m_LastServerInfo;
+                                                    byte m_LLResetAllowed;
+                                                    int32 m_LLResetCounter;
+                                                    uint64_vector_t m_EmbeddedElements;
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                    break;
+                                                }*/
+                                                if (Strcmp(class_name, "Savegame::Difficulty::Trigger") == 0) {
+                                                    int32_string_pair_t m_Trigger;
+                                                    int32 m_EventInstances;
+                                                    Assert(m_EventInstances == 0, Str("TODO: member %s of class %s", "m_EventInstances", class_name));
+                                                    int32 m_EventCount;
+                                                    float m_EventTime;
+                                                    int32 m_EffectCount;
+                                                    float m_EffectTimeLeft;
+                                                    break;
+                                                }
+                                                /*if (Strcmp(class_name, "Savegame::Looting::ContainerId") == 0) {
+                                                    uint64 m_Guid;
+                                                    int32 m_CPath;
+                                                    Assert(m_CPath == 0, Str("TODO: member %s of class %s", "m_CPath", class_name));
+                                                    string_t m_Path;
+                                                    break;
+                                                }*/
+                                                if (Strcmp(class_name, "Savegame::Challenges::Challenge") == 0) {
+                                                    uint32 m_Id;
+                                                    uint32 m_BestResult;
+                                                    uint32 m_PrevBestResult;
+                                                    uint32 m_LastResult;
+                                                    float m_TimeTrialBestResult;
+                                                    float m_TimeTrialLastResult;
+                                                    byte m_UnderTheFog;
+                                                    byte m_Active;
+                                                    byte m_Completed;
+                                                    byte m_UnlockInfoShown;
+                                                    int32 m_TriggersData;
+                                                    Assert(m_TriggersData == 0, Str("TODO: member %s of class %s", "m_TriggersData", class_name));
+                                                    break;
+                                                }
+                                                /*if (Strcmp(class_name, "Savegame::Roaming::FovMapTiles") == 0) {
+                                                    int32 m_Id;
+                                                    uint32 m_Tiles;
+                                                    uint32 m_Data_c;
+                                                    uint32 m_Data_d[m_Data_c];
+                                                    break;
+                                                }*/
+                                                //Printf("Class: %s\n", class_name);
+                                                //Printf("  Fields:\n");
+                                                for (field_index = 0; field_index < d_data.items.item[class_index].b_data.rtti_info.fields.count; ++field_index) {
+                                                    type = d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].type;
+                                                    name = read_string_t(d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].name);
+                                                    switch (type) {
+                                                        case RTTI_DATA_TYPE_INT8:
+                                                            type_string = "int8";
+                                                            char value <name="value">;
+                                                            SPrintf(value_string, "%d", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_INT16:
+                                                            type_string = "int16";
+                                                            int16 value <name="value">;
+                                                            SPrintf(value_string, "%d", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_INT32:
+                                                            type_string = "int32";
+                                                            int32 value <name="value">;
+                                                            SPrintf(value_string, "%d", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_UINT32:
+                                                            type_string = "uint32";
+                                                            uint32 value <name="value">;
+                                                            SPrintf(value_string, "%u", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_UINT64:
+                                                        case RTTI_DATA_TYPE_U008:
+                                                            type_string = "uint64";
+                                                            uint64 value <name="value">;
+                                                            SPrintf(value_string, "%lu", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_FLOAT:
+                                                            type_string = "float";
+                                                            float value <name="value">;
+                                                            SPrintf(value_string, "%f", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_BOOL:
+                                                            type_string = "bool";
+                                                            byte value <name="value">;
+                                                            SPrintf(value_string, "%s", value ? "true" : "false");
+                                                            break;
+                                                        case RTTI_DATA_TYPE_STRING:
+                                                            type_string = "string";
+                                                            string_t value <name="value">;
+                                                            SPrintf(value_string, "\"%s\"", read_string_t(value));
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR3:
+                                                            type_string = "vector3";
+                                                            vector3_t value <name="value">;
+                                                            SPrintf(value_string, "%f, %f, %f", value.x, value.y, value.z);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_INT32_STRING_PAIR:
+                                                            type_string = "pair<int32, string>";
+                                                            int32_string_pair_t value <name="value">;
+                                                            SPrintf(value_string, "%d, \"%s\"", value.first, read_string_t(value.second));
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_UINT64_25:
+                                                            type_string = "vector<uint64>";
+                                                            uint64_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_STRING:
+                                                            type_string = "vector<string>";
+                                                            string_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_BYTE:
+                                                        case RTTI_DATA_TYPE_U0039:
+                                                            type_string = "vector<byte>";
+                                                            byte_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_INT32:
+                                                        case RTTI_DATA_TYPE_U0044:
+                                                            type_string = "vector<int32>";
+                                                            int32_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_POINTER:
+                                                            type_string = "vector<pointer>";
+                                                            pointer_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_UINT64:
+                                                        case RTTI_DATA_TYPE_U0041:
+                                                            type_string = "vector<uint64>";
+                                                            uint64_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_POINTER:
+                                                            type_string = "pointer";
+                                                            rtt_pointer_t value <name="value">;
+                                                            SPrintf(value_string, "%u", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_VECTOR_OF_POINTER_86:
+                                                            type_string = "vector<pointer>";
+                                                            pointer_vector_t value <name="value">;
+                                                            SPrintf(value_string, "[count = %u]", value.length);
+                                                            break;
+                                                        default:
+                                                            //type_string = "unknown";
+                                                            //value_string = "[unknown]";
+                                                            Assert(0, Str("Unknown type %u of %s::{%s}", type, class_name, name));
+                                                            break;
+                                                    }
+                                                    //Printf("    Field #%d:\n", field_index);
+                                                    //Printf("      Name: %s\n", name);
+                                                    //Printf("      Type: %s (%u)\n", type_string, type);
+                                                    //Printf("      Value: %s\n", value_string);
+                                                    /*switch (d_data.items.item[class_index].b_data.rtti_info.fields.fields[field_index].type) {
+                                                        case RTTI_DATA_TYPE_BOOL:
+                                                            byte value;
+                                                            Printf("%s", value ? "true" : "false");
+                                                            break;
+                                                        case RTTI_DATA_TYPE_INT32:
+                                                            int32 value;
+                                                            Printf("%d", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_INT64:
+                                                            int64 value;
+                                                            Printf("%ld", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_FLOAT:
+                                                            float value;
+                                                            Printf("%f", value);
+                                                            break;
+                                                        case RTTI_DATA_TYPE_STRING_12:
+                                                        case RTTI_DATA_TYPE_STRING_20:
+                                                            string_t value;
+                                                            Printf(read_string_t(value));
+                                                            break;
+                                                        default:
+                                                            Assert(0, "Unknown type");
+                                                    }
+                                                    Printf("\n");*/
+                                                }
+                                                /*if (Strcmp(class_name, "Savegame::GameInfo") == 0) {
+                                                    rtt_pointer_t m_SaveVersion;
+                                                    rtt_pointer_t m_Backup;
+                                                    rtt_pointer_t m_DataContainer;
+                                                    struct {
+                                                        uint32 a;
+                                                        string_t b;
+                                                    } m_LastPlayedGameType;
+                                                    uint32 m_EmbeddedElements_count; // ?
+                                                    //uint32 m_EmbeddedElements_items[m_EmbeddedElements_count];
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                } else if (Strcmp(class_name, "Savegame::BackupInfo") == 0) {
+                                                    uint32 a;
+                                                    uint64 b;
+                                                    byte m_IsBackup;
+                                                    uint32 m_CheckpointId;
+                                                } else if (Strcmp(class_name, "Savegame::GameTypeInfo") == 0) {
+                                                    uint64 m_GameSessionId;
+                                                    string_t m_GameType;
+                                                    byte m_MultiplayerBlockade;
+                                                    rtt_pointer_t m_StoryInfo;
+                                                    int32_string_pair_t m_Difficulty;
+                                                    int32_string_pair_t m_MinDifficulty;
+                                                    //byte m_CampaignFinished; // game v1.04
+                                                    int32_string_pair_t m_FinishedDifficulty;
+                                                    rtt_pointer_t m_SpawnSpot;
+                                                    int32_vector_t m_PlayerLevel;
+                                                    int32 m_PlayerProgress;
+                                                    string_t m_CharacterPreset;
+                                                    int32 m_PlayerAppearanceId;
+                                                    string_vector_t m_PlayerOutfitParts;
+                                                    byte m_Played;
+                                                    int64 m_TimePlayed;
+                                                    int64 m_PlaythroughStartTime;
+                                                    rtt_pointer_t m_LastPlayDateTime;
+                                                    uint64 m_AbsoluteTime;
+                                                    byte m_CampaignFinished; // game v1.03
+                                                    int32 m_GamePlus;
+                                                    int16 m_CityAlignemntPK; // PK = Pacekeeper?
+                                                    int16 m_CityAlignemntSurv; // Surv = Survivor?
+                                                    struct {
+                                                        rtt_pointer_t a; // first version?
+                                                        rtt_pointer_t b; // current version?
+                                                    } m_Versions;
+                                                    byte m_LegendLevelUnlocked;
+                                                } else if (Strcmp(class_name, "Savegame::Backup") == 0) {
+                                                    string_t m_Name;
+                                                    struct {
+                                                        uint32 a;
+                                                        string_t b;
+                                                    } m_Mode;
+                                                    uint32 m_Id;
+                                                    string_t m_Description;
+                                                    byte m_Deleted;
+                                                } else if (Strcmp(class_name, "Story::Savegame::Info") == 0) {
+                                                    uint32 m_Campaigns_count;
+                                                    uint64 m_Campaigns_items[m_Campaigns_count];
+                                                    uint32 a; // something is off
+                                                    uint64 m_QuestId;
+                                                    uint64 m_QuestCampaignId;
+                                                    uint32 m_QuestDlc;
+                                                    uint64 m_Objectives; // vector of something?
+                                                    uint32 m_Chapter;
+                                                    uint32 m_Crc;
+                                                } else if (Strcmp(class_name, "Savegame::Encounter::State") == 0) {
+                                                    pointer_vector_t m_GroupData;
+                                                    pointer_vector_t m_CategoryData;
+                                                    uint32 m_EmbeddedElements;
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                } else if (Strcmp(class_name, "Savegame::StoryAgentsState") == 0) {
+                                                    pointer_vector_t m_Agents;
+                                                    uint32 m_EmbeddedElements;
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                } else if (Strcmp(class_name, "Savegame::StoryAgentsState::Agent") == 0) {
+                                                    int32_string_pair_t m_Type;
+                                                    int64 m_Level;
+                                                    int32 m_Points; // unknown type (8)
+                                                } else if (Strcmp(class_name, "Savegame::ServerAchievement::State") == 0) {
+                                                    byte_vector_t m_Data;
+                                                    uint32 m_EmbeddedElements;
+                                                    int32 m_GameType;
+                                                    int32 m_MapId;
+                                                } else if (Strcmp(class_name, "Story::Savegame::CampaignRewards") == 0) {
+                                                    uint64 m_CampaignId;
+                                                    uint32 a;
+                                                    uint64 b[a];
+                                                }*/
+                                                break;
+                                            }
+                                        }
+                                    } data;
+                                } b_data;
+                                ++count;
+                            } item;
+                        }
+                    } items;
+                } l_data;
+        
+        /*
+                int32 c;
+                int32 e;
+                byte raw2[e];
+                int32 f;
+                Assert(f == 0x6D444753); // SGDm
+                int32 g;
+                int32 h;
+                int32 i;
+                int32 j;
+                int32 k;
+                Assert(k == 0x53444753); // SGDS*/
+        
+                /*int32 c;
+                int64 d;
+                int32 size2;
+                byte raw2[size2];
+                uint32 magic;
+                int32 c;
+                int32 d;
+                int32 e;
+                int32 f;
+                uint32 magic;
+                int32 g;
+                int64 h;
+                int32 i;
+                byte raw3[i];*/
+            } data;
+        } data;
+    }
 };
 
 struct elements_t {
@@ -293,9 +777,45 @@ struct elements_t {
     int32 types[count];
     local int32 i;
     for (i = 0; i < count; ++i) {
-        element_blob_header_t header;
         struct {
-            int32 element_type;
+            //element_blob_header_t header;
+            // a and size are read by LoadISGChunk
+            int32 a; // bitset?
+            int32 size;
+
+            local uint64 data_offset = FTell();
+            union {
+                byte raw[size];
+                struct {
+                    /*int32 element_type;
+                    switch (element_type) {
+                        case ET_CLASS:
+                            class_element_t class;
+                            break;
+                        case 0x23:
+                            struct {
+                                int32 a;
+                            } Savegame__Inventory__State;
+                            break;
+                    }*/
+                    int32 a; // value can be found in the types array
+                    struct {
+                        int32 version;
+                        string_t version_rtti_name;
+                        int32 a;
+                        //Assert(a == 0 || a == 1); // Can it ever be anything else?
+                        blob_header_t blob_header;
+                        union {
+                            byte raw[blob_header.size];
+                            element_t element;
+                        } data;
+                        int32 b;
+                        int32 c;
+                        byte d[c];
+                    } b;
+                } inner_data;
+            } data;
+            /*int32 element_type;
             switch (element_type) {
                 case ET_CLASS:
                     class_element_t class;
@@ -305,9 +825,9 @@ struct elements_t {
                         int32 a;
                     } Savegame__Inventory__State;
                     break;
-            }
-        } element;
-        FSeek(header.offset + header.size);
+            }*/
+        } sg_chunks;
+        //FSeek(header.offset + header.size);
     }
 //Assert(element.chunk.element_type == types[i]);
 };
@@ -318,14 +838,16 @@ struct elements_blob_t {
 };
 
 struct file_t {
-    int32 a;
-    int32 b;
-    int32 c;
-    int32 version;
-    
+    struct {
+        int32 a;
+        int32 b;
+        int32 c;
+        int32 game_version;
+        string_t game_version_rtti_name;
+    } a;
+
     string_t d;
-    string_t e;
-    int32 f;
+    int32 e;
     
     //blob_header_t state_elements_blob_header;
     //FSeek(state_elements_blob_header.offset);
