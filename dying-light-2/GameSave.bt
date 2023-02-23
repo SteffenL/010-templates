@@ -437,7 +437,7 @@ struct element_t {
                                         local string value_string = "";
                                         local string name = "";
                                         local int value_element_index = 0;
-                                        local byte enable_dump = 1;
+                                        local byte enable_dump = 0;
                                         for (class_index = 0; class_index < d_data.items.count; ++class_index) {
                                              rtti_index = d_data.items.item[class_index].b_data.rtti_info.index;
                                             if (data_index == rtti_index) {
@@ -790,69 +790,39 @@ struct element_t {
     }
 };
 
-struct elements_t {
-    int32 count;
-    int32 types[count];
-    local int32 i;
-    for (i = 0; i < count; ++i) {
-        struct {
-            //element_blob_header_t header;
-            // a and size are read by LoadISGChunk
-            int32 a; // bitset?
-            int32 size;
+struct S2 {
+    // a and size are read by LoadISGChunk
+    int32 a; // bitset?
+    int32 size;
 
-            local uint64 data_offset = FTell();
-            union {
-                byte raw[size];
-                struct {
-                    /*int32 element_type;
-                    switch (element_type) {
-                        case ET_CLASS:
-                            class_element_t class;
-                            break;
-                        case 0x23:
-                            struct {
-                                int32 a;
-                            } Savegame__Inventory__State;
-                            break;
-                    }*/
-                    int32 a; // value can be found in the types array
-                    struct {
-                        int32 version;
-                        string_t version_rtti_name;
-                        int32 a;
-                        //Assert(a == 0 || a == 1); // Can it ever be anything else?
-                        blob_header_t blob_header;
-                        union {
-                            byte raw[blob_header.size];
-                            element_t element;
-                        } data;
-                        int32 b;
-                        int32 c;
-                        byte d[c];
-                    } b;
-                } inner_data;
-            } data;
-            /*int32 element_type;
-            switch (element_type) {
-                case ET_CLASS:
-                    class_element_t class;
-                    break;
-                case 0x23:
-                    struct {
-                        int32 a;
-                    } Savegame__Inventory__State;
-                    break;
-            }*/
-        } sg_chunks;
-        //FSeek(header.offset + header.size);
-    }
-//Assert(element.chunk.element_type == types[i]);
+    local uint64 data_offset = FTell();
+    union {
+        byte raw[size];
+        struct {
+            int32 a; // value can be found in the types array
+            struct {
+                int32 version;
+                string_t version_rtti_name;
+                int32 a;
+                //Assert(a == 0 || a == 1); // Can it ever be anything else?
+                blob_header_t blob_header;
+                union {
+                    byte raw[blob_header.size];
+                    element_t element;
+                } data;
+                int32 b;
+                int32 c;
+                byte d[c];
+            } b;
+        } inner_data;
+    } data;
 };
 
-struct elements_blob_t {
-    blob_header_t blob_header;
-    elements_t elements;
+struct S1 {
+    uint32 size;
+    int32 count;
+    int32 types[count];
+    S2 chunks[count] <optimize=false>;
 };
 
 struct file_t {
@@ -866,12 +836,7 @@ struct file_t {
 
     string_t d;
     int32 e;
-    
-    //blob_header_t state_elements_blob_header;
-    //FSeek(state_elements_blob_header.offset);
-    //state_elements_t data;
-    
-    elements_blob_t elements_blob;
+    S1 f;
 };
 
 
