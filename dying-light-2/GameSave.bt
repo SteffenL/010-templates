@@ -684,8 +684,8 @@ struct S006 {
         struct {
             uint32 magic;
             Assert(magic == 0x64444753); // SGDd
-            int32 a;
-            int32 b_size;
+            uint32 a;
+            uint32 b_size;
             union {
                 byte raw[b_size];
                 rtti_info_t rtti_info;
@@ -696,29 +696,29 @@ struct S006 {
 };
 
 struct S005 {
-    int32 a;
+    uint32 a;
     Assert(a == 0x44444753); // SGDD
-    int32 b;
-    int64 c;
+    uint32 b;
+    uint64 c;
     
-    int32 d_size;
+    uint32 d_size;
     union {
         byte raw[d_size];
         S006 items;
     } d_data;
     
-    int32 e;
+    uint32 e;
     Assert(e == 0x6D444753); // SGDm
-    int32 f;
-    int32 g; // maybe this is the size of the data below (8 bytes fits nicely)
-    int64 h; // maybe 2 x int32
+    uint32 f;
+    uint32 g; // maybe this is the size of the data below (8 bytes fits nicely)
+    uint64 h; // maybe 2 x int32
     
-    int32 i;
+    uint32 i;
     Assert(i == 0x53444753); // SGDS
-    int32 j;
-    int64 k;
+    uint32 j;
+    uint64 k;
     
-    int32 l_size;
+    uint32 l_size;
     union {
         byte raw[l_size];
         S007 items;
