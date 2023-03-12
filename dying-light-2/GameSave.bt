@@ -422,7 +422,7 @@ struct S007 {
                             if (Strcmp(class_name, "Savegame::Difficulty::Trigger") == 0) {
                                 int32_string_pair_t m_Trigger;
                                 int32 m_EventInstances;
-                                Assert(m_EventInstances == 0, Str("TODO: member %s of class %s", "m_EventInstances", class_name));
+                                float m_EventInstances_items[m_EventInstances];
                                 int32 m_EventCount;
                                 float m_EventTime;
                                 int32 m_EffectCount;
