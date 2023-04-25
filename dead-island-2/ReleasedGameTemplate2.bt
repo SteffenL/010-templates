@@ -1,0 +1,328 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef enum {
+    //DataType_? = 2, // 4 bytes, might be int32
+    DataType_Float = 10,
+    DataType_Int32 = 14,
+    DataType_String = 24,
+} DataType;
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        char data[length] <optimize=false>;
+    }
+} String <read=ReadString_>;
+
+string ReadString_(String& from) {
+    string to;
+    if (from.length > 0) {
+        Strncpy(to, from.data, from.length);
+    } else {
+        to = "";
+    }
+    return to;
+}
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        byte data[length] <optimize=false>;
+    }
+} Data;
+
+typedef struct {
+    String u043;
+    uint32 u044_length;
+    uint32 u045;
+    String u046;
+    byte u047_all_zeroes[17];
+    local int64 pos = FTell();
+    byte u044_data[u044_length];
+    FSeek(pos);
+
+    uint32 u100;
+    uint32 u101;
+    String u102;
+    String u103;
+    String u104;
+    uint32 data_length;
+    String u106;
+    String u107;
+    byte u108;
+    struct {
+        uint32 count;
+        String items[count] <optimize=false>;
+    } data;
+
+    FSeek(pos + data_length);
+    //String u048;
+} StructProperty;
+
+typedef struct {
+    String name;
+    DataType type;
+    Data value_bytes;
+    local int64 pos = FTell();
+    FSkip(-value_bytes.length);
+    switch (type) {
+        case DataType_String:
+            String value;
+            break;
+        case DataType_Float:
+            float value;
+            break;
+        case DataType_Int32:
+            int32 value;
+            break;
+    }
+    FSeek(pos);
+    FSeek(pos + data_length);
+} Challenges_Item;
+
+typedef struct PropertyData (String& type) {
+    if (Strncmp("NameProperty", type.data, type.length) == 0) {
+        String value;
+    } else if (Strncmp("StructProperty", type.data, type.length) == 0) {
+        StructProperty value;
+        /*String type;
+        uint32 data_length;
+        uint32 u1;
+        String u2;
+        uint32 u3;
+        uint32 u4;
+        union {
+            byte data[data_length] <optimize=false>;
+            Proper
+        };*/
+        //String u5;
+        //String u6;
+        //uint32 u7;
+    } else if (Strncmp("MapProperty", type.data, type.length) == 0) {
+    } else {
+        Printf("Unhandled property type: %s", ReadString_(type));
+    }
+};
+
+typedef struct {
+    String type;
+    uint32 data_length;
+    uint32 u001;
+    String key_type;
+    String value_type;
+    byte u002;
+    local int64 pos = FTell();
+    byte data[data_length] <optimize=false>;
+    FSeek(pos);
+    PropertyData key(key_type);
+    PropertyData value(value_type);
+    FSeek(pos + data_length);
+} MapProperty <read=(Str("%s<%s, %s>", ReadString_(type), ReadString_(key_type), ReadString_(value_type)))>;
+
+typedef struct {
+    uint32 u001;
+    uint32 u002;
+    String u003;
+    uint32 u004;
+    uint32 u005;
+    String u006;
+    String u007;
+    uint32 u008;
+    String u009;
+    MapProperty u010;
+    //String u011;
+/*
+    //byte u011_data[u011;
+    String u016;
+    String u017;
+    uint32 u018;
+    uint32 u019;
+    String u020;
+    byte u021[25];
+    String u025;
+    String u026;
+    String u027;
+    uint32 u028_length;
+    uint32 u029;
+    String u030;
+    byte u031;
+    //local int64 pos = FTell();
+    byte u028_data[u028_length] <optimize=false>;*/
+    /*FSeek(pos);
+    uint32 u032_count;
+    String u032_items[u032_count] <optimize=false>;*/
+} Challenges;
+
+
+typedef struct {
+    String name;
+    DataType type;
+    Data value_bytes;
+    local int64 pos = FTell();
+    FSkip(-value_bytes.length);
+    switch (type) {
+        case DataType_Float:
+            float value;
+            break;
+        case DataType_Int32:
+            int32 value;
+            break;
+        case DataType_String:
+            String value;
+            break;
+        default:
+            Printf("[Options_Item] Unhandled data type: %d\n", type);
+            break;
+    }
+    FSeek(pos);
+} Options_Item;
+
+typedef struct {
+    uint32 u001;
+    uint32 u002;
+    String u003;
+    uint32 u004;
+    uint32 u005;
+    String u006;
+    String u007;
+    uint32 u008;
+    String u009;
+    uint32 u010;
+    uint32 item_count;
+    Options_Item item[item_count] <optimize=false, read=(ReadString_(name))>;
+} Options;
+
+typedef struct {
+    String name;
+    Data raw;
+    local int64 pos = FTell();
+    FSkip(-raw.length);
+    if (Strncmp("Options", name.data, name.length) == 0) {
+        Options options;
+    } else if (Strncmp("Challenges", name.data, name.length) == 0) {
+        Challenges challenges;
+    }
+    FSeek(pos);
+} Root_Item <read=(ReadString_(name))>;
+
+typedef struct {
+    uint32 count;
+    Root_Item items[count] <optimize=false>;
+} Root;
+
+Root root;
+
+
+
+
+/*
+uint32 u004;
+uint32 u005;
+String u006;
+String u007;
+uint32 u008;
+String u009;
+String u010;
+uint32 u011;
+uint32 u012;
+String u013;
+byte u014;
+uint32 u015;
+String u016;
+String u017;
+uint32 u018_length;
+uint32 u019;
+String u020;
+char u021_only_zeros[17];
+byte u018_data[u018_length];
+String u030;
+String u031;
+uint32 u032;
+uint32 u033;
+String u034;
+byte u035[5];
+uint32 u040;
+String u041;
+String u042;
+//StructProperty sp001;
+    String u043;
+    uint32 u044_length;
+    uint32 u045;
+    String u046;
+    byte u047_all_zeroes[17];
+    byte u044_data[u044_length];
+    String u048;
+
+uint32 u050;
+String u051;
+
+uint32 u052;
+uint32 u053;
+
+typedef struct {
+    String u054;
+    uint32 u055;
+    uint32 u056;
+    String u057;
+    String u058;
+    uint32 u059;
+    String u060;
+    uint32 u061;
+    uint32 u062;
+    String u063;
+    uint32 u064;
+    uint32 u065;
+    String u066;
+    String u067;
+    uint32 u068;
+    uint32 u069;
+    String u070;
+    String u071;
+    uint32 u072;
+    uint32 u073;
+    String u074;
+    String u075;
+    uint32 u076;
+    uint32 u077;
+    String u078;
+    String u079;
+    uint32 u080;
+    uint32 u081;
+    uint32 u082;
+} ProfileSummary;
+
+ProfileSummary summary[u052] <optimize=false>;
+*/
+/*
+
+
+uint32 u083_length;
+char u083_data[u083_length];
+uint32 u084;
+uint32 u085;
+uint32 u086_length;
+char u086_data[u086_length];
+uint32 u087_length;
+char u087_data[u087_length];
+uint32 u088;
+uint32 u089_length;
+char u089_data[u089_length];
+uint32 u090;
+uint32 u091;
+uint32 u092_length;
+char u092_data[u092_length];
+uint32 u093;
+uint32 u094;
+uint32 u095_length;
+char u095_data[u095_length];*/

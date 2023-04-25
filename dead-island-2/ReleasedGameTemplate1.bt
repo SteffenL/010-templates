@@ -1,0 +1,34 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct file_header_t {
+    /*uint32 a;
+    uint16 d;
+    uint16 e;
+    uint32 f;*/
+    uint32 compression_length;
+    char compression[compression_length] <optimize=false>;
+};
+
+
+struct chunk_header_t {
+    uint32 compressed_size;
+    uint32 decompressed_size;
+    byte compressed_data[compressed_size];
+};
+
+char unknown1[12];
+uint32 compression_length;
+char compression[compression_length] <optimize=false>;
+chunk_header_t chunk_header[18] <optimize=false>;
+char unknown2[12];
