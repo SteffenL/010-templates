@@ -30,5 +30,6 @@ struct chunk_header_t {
 char unknown1[12];
 uint32 compression_length;
 char compression[compression_length] <optimize=false>;
-chunk_header_t chunk_header[18] <optimize=false>;
-char unknown2[12];
+chunk_header_t chunk_header[14] <optimize=false>;
+uint32 unknown2;
+char maybe_hash[8];

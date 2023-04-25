@@ -26,7 +26,7 @@ typedef struct {
 } String <read=ReadString_>;
 
 string ReadString_(String& from) {
-    string to;
+    local string to;
     if (from.length > 0) {
         Strncpy(to, from.data, from.length);
     } else {
@@ -42,7 +42,54 @@ typedef struct {
     }
 } Data;
 
-typedef struct {
+struct Property (const String& element_type) {
+    local string type = ReadString_(element_type);
+    if (type == "NameProperty") {
+        String value;
+    }
+};
+
+typedef struct ArrayProperty_Container (const String& element_type) {
+    uint32 count;
+    Property element(element_type)[count] <optimize=false>;
+};
+
+typedef struct ArrayProperty {
+    String property_type;
+    uint32 elements_data_length;
+    uint32 u105;
+    String element_type;
+    byte u107;
+    local int64 pos = FTell();
+    byte elements_data[elements_data_length];
+    FSeek(pos);
+    ArrayProperty_Container container(element_type);
+    FSeek(pos + elements_data_length);
+    String u108;
+};
+
+struct ActiveChallengeCollection {
+    uint32 u100;
+    uint32 u101;
+
+    String u102;
+    String u103;
+    ArrayProperty u104;
+
+    String u105;
+    String u106;
+    ArrayProperty u107;
+
+    String u106;
+    String u107;
+    ArrayProperty u108;
+
+    String u109;
+    String u110;
+    ArrayProperty u111;
+};
+
+struct StructProperty {
     String u043;
     uint32 u044_length;
     uint32 u045;
@@ -52,23 +99,14 @@ typedef struct {
     byte u044_data[u044_length];
     FSeek(pos);
 
-    uint32 u100;
-    uint32 u101;
-    String u102;
-    String u103;
-    String u104;
-    uint32 data_length;
-    String u106;
-    String u107;
-    byte u108;
-    struct {
-        uint32 count;
-        String items[count] <optimize=false>;
-    } data;
+    local string u046_str = ReadString_(u046);
+    if (u046_str == "ActiveChallengeCollection") {
+        ActiveChallengeCollection active_challenge_collection;
+    }
 
     FSeek(pos + data_length);
-    //String u048;
-} StructProperty;
+    //String u112;
+};
 
 typedef struct {
     String name;
@@ -128,6 +166,7 @@ typedef struct {
     PropertyData key(key_type);
     PropertyData value(value_type);
     FSeek(pos + data_length);
+    String u011;
 } MapProperty <read=(Str("%s<%s, %s>", ReadString_(type), ReadString_(key_type), ReadString_(value_type)))>;
 
 typedef struct {
@@ -141,6 +180,7 @@ typedef struct {
     uint32 u008;
     String u009;
     MapProperty u010;
+    uint32 u012;
     //String u011;
 /*
     //byte u011_data[u011;
