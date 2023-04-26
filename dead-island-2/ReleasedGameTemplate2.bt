@@ -70,23 +70,12 @@ typedef struct ArrayProperty {
 
 struct ActiveChallengeCollection {
     uint32 u100;
-    uint32 u101;
-
-    String u102;
-    String u103;
-    ArrayProperty u104;
-
-    String u105;
-    String u106;
-    ArrayProperty u107;
-
-    String u106;
-    String u107;
-    ArrayProperty u108;
-
-    String u109;
-    String u110;
-    ArrayProperty u111;
+    uint32 count;
+    struct {
+        String u102;
+        String u103;
+        ArrayProperty u104;
+    } elements[count] <optimize=false>;
 };
 
 struct StructProperty {
