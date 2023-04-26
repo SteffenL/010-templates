@@ -1,0 +1,253 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    int32 length;
+    if (length > 0) {
+        char data[length] <optimize=false>;
+    } /*else if (length < 0) {
+        wchar_t data[-length] <optimize=false>;
+    }*/
+} String <read=ReadString_>;
+
+// FNameEntrySerialized also has some hash stuff at the end
+
+string ReadString_(String& from) {
+    local string to;
+    if (from.length > 0) {
+        Strncpy(to, from.data, from.length);
+    } else {
+        to = "";
+    }
+    return to;
+}
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        byte data[length] <optimize=false>;
+    }
+} Data;
+
+struct Guid {
+    byte data[16];
+};
+
+// Engine/Source/Runtime/CoreUObject/Public/UObject/PropertyTag.h
+// Engine/Source/Runtime/CoreUObject/Private/UObject/PropertyTag.cpp
+struct PropertyTag {
+    String name;
+    local string name_str = ReadString_(name);
+    if (name_str == "None") {
+        return;
+    }
+    String type;
+    int32 size;
+    int32 array_index;
+    local string type_str = ReadString_(type);
+
+    // present if Tag.Type.GetNumber() == 0
+    if (type_str == "StructProperty") {
+        String struct_name;
+        // struct_guid is present if Version >= VER_UE4_STRUCT_GUID_IN_PROPERTY_TAG
+        Guid struct_guid;
+    } else if (type_str == "BoolProperty") {
+        byte bool_val;
+    } else if (type_str == "ByteProperty" || type_str == "EnumName") {
+        String enum_name;
+    } else if (type_str == "ArrayProperty") {
+        // present if Version >= VAR_UE4_ARRAY_PROPERTY_INNER_TAGS
+        String inner_type;
+    } else {
+        // present if Version >= VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
+        if (type_str == "SetProperty") {
+            String inner_type;
+        } else if (type_str == "MapProperty") {
+            String inner_type;
+            String value_type;
+        }
+    }
+
+    // present if Version >= VER_UE4_PROPERTY_GUID_IN_PROPERTY_TAG
+    byte has_property_guid;
+    if (has_property_guid) {
+        Guid property_guid;
+    }
+};
+
+struct Property {
+    PropertyTag tag;
+    local string name_str = ReadString_(tag.name);
+    if (name_str == "None") {
+        return;
+    }
+    local string type_str = ReadString_(tag.type);
+    local int64 data_pos = FTell();
+    if (type_str == "ArrayProperty") {
+        struct {
+            int32 count;
+            PropertyTag inner_tag;
+            struct {
+                struct {
+                    if (ReadString_(inner_tag.struct_name) == "Guid") {
+                        Guid guid;
+                    }
+                } value[count] <optimize=false>;
+            } values;
+        } array_property;
+    }
+    FSeek(data_pos);
+    byte raw_data[tag.size];
+};
+
+enum VariantType {
+    VariantType_Empty = 0,
+    VariantType_Ansichar = 1,
+    VariantType_Bool = 2,
+    VariantType_Box = 3,
+    VariantType_BoxSphereBounds = 4,
+    VariantType_ByteArray = 5,
+    VariantType_Color = 6,
+    VariantType_DateTime = 7,
+    VariantType_Double = 8,
+    VariantType_Enum = 9,
+    VariantType_Float = 10,
+    VariantType_Guid = 11,
+    VariantType_Int8 = 12,
+    VariantType_Int16 = 13,
+    VariantType_Int32 = 14,
+    VariantType_Int64 = 15,
+    VariantType_IntRect = 16,
+    VariantType_LinearColor = 17,
+    VariantType_Matrix = 18,
+    VariantType_Name = 19,
+    VariantType_Plane = 20,
+    VariantType_Quat = 21,
+    VariantType_RandomStream = 22,
+    VariantType_Rotator = 23,
+    VariantType_String = 24,
+    VariantType_Widechar = 25,
+    VariantType_Timespan = 26,
+    VariantType_Transform = 27,
+    VariantType_TwoVectors = 28,
+    VariantType_UInt8 = 29,
+    VariantType_UInt16 = 30,
+    VariantType_UInt32 = 31,
+    VariantType_UInt64 = 32,
+    VariantType_Vector = 33,
+    VariantType_Vector2d = 34,
+    VariantType_Vector4 = 35,
+    VariantType_IntPoint = 36,
+    VariantType_IntVector = 37,
+    VariantType_NetworkGUID = 38,
+    VariantType_Custom = 0x40,
+};
+
+struct Variant {
+    VariantType type;
+    Data value_bytes;
+    local int64 pos = FTell();
+    FSkip(-value_bytes.length);
+    switch (type) {
+        case VariantType_Bool:
+            int32 value; // Why is this 4 bytes instead of 1 byte?
+            break;
+        case VariantType_String:
+            String value;
+            break;
+        case VariantType_Float:
+            float value;
+            break;
+        case VariantType_Int32:
+            int32 value;
+            break;
+        default:
+            Assert(0, Str("Unknown variant type %d", type));
+            break;
+    }
+    FSeek(pos);
+};
+
+struct CharacterProfileAccount {
+    uint32 u001;
+    uint32 u002;
+    String name;
+    String script_name;
+    uint32 u005;
+    Property profile_ids;
+    Property account_privileges;
+    Property active_character;
+    Property u006;
+    uint32 u007;
+    struct {
+        String u001;
+        uint32 count;
+        uint32 u003;
+
+        struct {
+            String u004;
+            uint32 u005;
+            uint32 u006;
+            String name;
+            String script_name;
+            uint32 u009;
+            String u010;
+            uint32 u011;
+    
+            uint32 count;
+            struct {
+                String key;
+                Variant value;
+            } items[count] <optimize=false>;
+        } items[count] <optimize=false>;
+    } profile_summaries;
+};
+
+struct Options {
+    uint32 u001;
+    uint32 u002;
+    String u003;
+    uint32 u004;
+    uint32 u005;
+    String name;
+    String script_name;
+    uint32 u008;
+    String u009;
+    uint32 u010;
+    uint32 count;
+    struct {
+        String key;
+        Variant value;
+    } item[count] <optimize=false, read=(ReadString_(key))>;
+};
+
+typedef struct {
+    String name;
+    Data raw;
+    local int64 pos = FTell();
+    FSkip(-raw.length);
+    local string name_str = ReadString_(name);
+    if (name_str == "CharacterProfileAccount") {
+        CharacterProfileAccount character_profile_account;
+    } else if (name_str == "Options") {
+        Options options;
+    }
+    FSeek(pos);
+} Root_Item <read=(ReadString_(name))>;
+
+typedef struct {
+    uint32 count;
+    Root_Item items[count] <optimize=false>;
+} Root;
+
+Root root;
