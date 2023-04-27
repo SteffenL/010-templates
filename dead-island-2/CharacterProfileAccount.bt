@@ -53,6 +53,9 @@ struct PropertyTag {
     }
     String type;
     int32 size;
+    /*if (size == 0) {
+        return;
+    }*/
     int32 array_index;
     local string type_str = ReadString_(type);
 
@@ -63,7 +66,7 @@ struct PropertyTag {
         Guid struct_guid;
     } else if (type_str == "BoolProperty") {
         byte bool_val;
-    } else if (type_str == "ByteProperty" || type_str == "EnumName") {
+    } else if (type_str == "ByteProperty" || type_str == "EnumProperty") {
         String enum_name;
     } else if (type_str == "ArrayProperty") {
         // present if Version >= VAR_UE4_ARRAY_PROPERTY_INNER_TAGS
@@ -85,30 +88,46 @@ struct PropertyTag {
     }
 };
 
-struct Property {
+typedef struct Property_ {
     PropertyTag tag;
     local string name_str = ReadString_(tag.name);
     if (name_str == "None") {
         return;
     }
+    if (tag.size == 0) {
+        return;
+    }
     local string type_str = ReadString_(tag.type);
     local int64 data_pos = FTell();
-    if (type_str == "ArrayProperty") {
+    /*if (type_str == "ArrayProperty") {
         struct {
             int32 count;
             PropertyTag inner_tag;
+            local string struct_name = ReadString_(inner_tag.struct_name);
             struct {
                 struct {
-                    if (ReadString_(inner_tag.struct_name) == "Guid") {
+                    if (struct_name == "Guid") {
                         Guid guid;
+                    } else if (struct_name == "StrProperty") {
+                        String str;
+                    } else {
+                        Assert(0, Str("[Property] Unknown inner tag struct name: %s", struct_name));
                     }
                 } value[count] <optimize=false>;
             } values;
         } array_property;
+    } else*/ if (type_str == "EnumProperty") {
+        String value;
+    } else if (type_str == "FloatProperty") {
+        float value;
+    } else if (type_str == "IntProperty") {
+        int32 value;
+    } else {
+        Printf("[Property] TODO: %s\n", type_str);
     }
     FSeek(data_pos);
     byte raw_data[tag.size];
-};
+} Property <name=(ReadString_(tag.name))>;
 
 enum VariantType {
     VariantType_Empty = 0,
@@ -208,7 +227,7 @@ struct CharacterProfileAccount {
             struct {
                 String key;
                 Variant value;
-            } items[count] <optimize=false>;
+            } items[count] <optimize=false, read=(ReadString_(key))>;
         } items[count] <optimize=false>;
     } profile_summaries;
 };
@@ -224,11 +243,105 @@ struct Options {
     uint32 u008;
     String u009;
     uint32 u010;
+
     uint32 count;
     struct {
         String key;
         Variant value;
     } item[count] <optimize=false, read=(ReadString_(key))>;
+};
+
+void read_properties_until_none() {
+    while (true) {
+        Property property;
+        if (ReadString_(property.tag.name) == "None") {
+            break;
+        }
+    }
+}
+
+struct Script_DeadIsland_DIObjectivePersistentDataCollection {
+
+};
+
+struct CharacterData {
+    typedef struct {
+        uint32 u002;
+        String name;
+        String script_name;
+        uint32 u003;
+        read_properties_until_none();
+    } U001 <read=(ReadString_(name))>;
+
+    typedef struct {
+        uint32 u002;
+        String name;
+        uint32 u004;
+        uint32 u005;
+        struct {
+            String name;
+            String script_name;
+            uint32 u003;
+            read_properties_until_none();
+        } inner;
+    } U002 <read=(ReadString_(name))>;
+
+    uint32 u001;
+
+    U001 character_data;
+    U001 installation_features;
+    U001 progression;
+    U001 quest_stats;
+    U002 tutorials;
+    U002 discovery;
+    U002 points_of_interest;
+    U002 character_stats;
+    U002 skill_slots;
+    U002 campaign;
+    U002 mission_system;
+    U002 examinables;
+
+    struct {
+        uint32 u001;
+        String u002;
+        uint32 u003;
+        uint32 u004;
+        String u005;
+        uint32 u006;
+
+        U001 u007;
+        U001 u008;
+        U001 u009;
+        U001 u010;
+        uint32 u011;
+    } u002;
+
+    struct {
+        String name;
+        uint32 u004;
+        uint32 count;
+        struct {
+            String name;
+            String script_name;
+            uint32 u003;
+            read_properties_until_none();
+            uint32 u004;
+        } items[count] <read=(ReadString_(name)), optimize=false>;
+    } objectives <read=(ReadString_(name))>;
+
+
+    struct {
+        String name;
+        uint32 u004;
+        uint32 count;
+        struct {
+            String name;
+            String script_name;
+            uint32 u003;
+            read_properties_until_none();
+            uint32 u004;
+        } items[count] <read=(ReadString_(name)), optimize=false>;
+    } objective_ui_entities <read=(ReadString_(name))>;
 };
 
 typedef struct {
@@ -241,6 +354,14 @@ typedef struct {
         CharacterProfileAccount character_profile_account;
     } else if (name_str == "Options") {
         Options options;
+    } else if (name_str == "Account") {
+        Printf("[Root] TODO: %s\n", name_str);
+    } else if (name_str == "Challenges") {
+        Printf("[Root] TODO: %s\n", name_str);
+    } else if (Strlen(name_str) == 32) {
+        CharacterData character_data;
+    } else {
+        Assert(0, Str("[Root] Unknown item: %s", name_str));
     }
     FSeek(pos);
 } Root_Item <read=(ReadString_(name))>;
