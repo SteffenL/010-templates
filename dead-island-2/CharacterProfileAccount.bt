@@ -123,7 +123,7 @@ typedef struct Property_ {
     } else if (type_str == "IntProperty") {
         int32 value;
     } else {
-        Printf("[Property] TODO: %s\n", type_str);
+        //Printf("[Property] TODO: %s\n", type_str);
     }
     FSeek(data_pos);
     byte raw_data[tag.size];
@@ -291,14 +291,18 @@ struct CharacterData {
         String name;
         uint32 u001;
         uint32 count;
-        struct {
-            String name;
-            String script_name;
-            uint32 u001;
-            read_properties_until_none();
-            uint32 u002;
-        } items[count] <read=(ReadString_(name)), optimize=false>;
-        U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
+        if (count > 0) {
+            struct {
+                String name;
+                String script_name;
+                uint32 u001;
+                read_properties_until_none();
+                uint32 u002;
+            } items[count] <read=(ReadString_(name)), optimize=false>;
+        }
+        if (u001 > 0) {
+            U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
+        }
     } U003 <read=(ReadString_(name))>;
 
     typedef struct {
@@ -306,8 +310,14 @@ struct CharacterData {
         String name;
         uint32 count;
         uint32 u002;
-        U003 u003[count] <read=(ReadString_(name)), optimize=false>;
+        if (count > 0) {
+            U003 u003[count] <read=(ReadString_(name)), optimize=false>;
+        }
     } Quests <read=(ReadString_(name))>;
+
+    typedef struct LightingScenario_t {
+        
+    } LightingScenario <read=(ReadString_(name))>;
 
     uint32 u001;
 
@@ -324,6 +334,7 @@ struct CharacterData {
     U002 mission_system;
     U002 examinables;
     Quests quests;
+    LightingScenario lighting_scenario;
 };
 
 typedef struct {
