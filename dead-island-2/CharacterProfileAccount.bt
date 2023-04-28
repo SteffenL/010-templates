@@ -286,6 +286,29 @@ struct CharacterData {
         } inner;
     } U002 <read=(ReadString_(name))>;
 
+    struct U003_;
+    typedef struct U003_ {
+        String name;
+        uint32 u001;
+        uint32 count;
+        struct {
+            String name;
+            String script_name;
+            uint32 u001;
+            read_properties_until_none();
+            uint32 u002;
+        } items[count] <read=(ReadString_(name)), optimize=false>;
+        U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
+    } U003 <read=(ReadString_(name))>;
+
+    typedef struct {
+        uint32 u001;
+        String name;
+        uint32 count;
+        uint32 u002;
+        U003 u003[count] <read=(ReadString_(name)), optimize=false>;
+    } Quests <read=(ReadString_(name))>;
+
     uint32 u001;
 
     U001 character_data;
@@ -300,93 +323,7 @@ struct CharacterData {
     U002 campaign;
     U002 mission_system;
     U002 examinables;
-
-    struct {
-        uint32 u001;
-        String u002;
-        uint32 u003;
-        uint32 u004;
-        String u005;
-        uint32 u006;
-
-        U001 u007;
-        U001 u008;
-        U001 u009;
-        U001 u010;
-        uint32 u011;
-    } u002;
-
-    struct {
-        String name;
-        uint32 u004;
-        uint32 count;
-        struct {
-            String name;
-            String script_name;
-            uint32 u003;
-            read_properties_until_none();
-            uint32 u004;
-        } items[count] <read=(ReadString_(name)), optimize=false>;
-    } objectives <read=(ReadString_(name))>;
-
-
-    /*struct {
-        String name;
-        uint32 u004;
-        uint32 count;
-        struct {
-            String name;
-            String script_name;
-            uint32 u003;
-            read_properties_until_none();
-            uint32 u004;
-        } items[count] <read=(ReadString_(name)), optimize=false>;
-    } objective_ui_entities <read=(ReadString_(name))>;
-
-    struct {
-        String u001;
-        uint32 u002;
-        uint32 u003;
-        String name;
-        String script_name;
-        uint32 u004;
-        read_properties_until_none();
-        uint32 u005;
-        struct {
-            String name;
-            String script_name;
-            uint32 u001;
-            read_properties_until_none();
-            uint32 u002;
-        } u006;
-        struct {
-            String name;
-            String script_name;
-            uint32 u001;
-            read_properties_until_none();
-            uint32 u002;
-        } u007;
-        struct {
-            String name;
-            String script_name;
-            uint32 u001;
-            read_properties_until_none();
-            uint32 u002;
-        } u008;
-    } u003;
-
-    struct {
-        String name;
-        uint32 u004;
-        uint32 count;
-        struct {
-            String name;
-            String script_name;
-            uint32 u003;
-            read_properties_until_none();
-            uint32 u004;
-        } items[count] <read=(ReadString_(name)), optimize=false>;
-    } objectives2 <read=(ReadString_(name))>;*/
+    Quests quests;
 };
 
 typedef struct {
