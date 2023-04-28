@@ -265,13 +265,29 @@ struct Script_DeadIsland_DIObjectivePersistentDataCollection {
 };
 
 struct CharacterData {
-    typedef struct {
+    struct U001_;
+    typedef struct U001_ {
         uint32 u002;
         String name;
         String script_name;
         uint32 u003;
         read_properties_until_none();
+        /*if (u002 > 0) {
+            U001_ items[count] <optimize=false>;
+        }*/
     } U001 <read=(ReadString_(name))>;
+
+    struct U001_2_;
+    typedef struct U00_21_ {
+        uint32 u002;
+        String name;
+        String script_name;
+        uint32 u003;
+        read_properties_until_none();
+        /*if (u002 > 0) {
+            U001_ items[count] <optimize=false>;
+        }*/
+    } U001_2 <read=(ReadString_(name))>;
 
     typedef struct {
         uint32 u002;
@@ -288,6 +304,7 @@ struct CharacterData {
 
     struct U003_;
     typedef struct U003_ {
+        //uint32 x;
         String name;
         uint32 u001;
         uint32 count;
@@ -305,36 +322,46 @@ struct CharacterData {
         }
     } U003 <read=(ReadString_(name))>;
 
-    typedef struct {
-        uint32 u001;
-        String name;
-        uint32 count;
-        uint32 u002;
-        if (count > 0) {
-            U003 u003[count] <read=(ReadString_(name)), optimize=false>;
-        }
-    } Quests <read=(ReadString_(name))>;
-
-    typedef struct LightingScenario_t {
-        
-    } LightingScenario <read=(ReadString_(name))>;
-
-    uint32 u001;
-
+    uint32 count;
     U001 character_data;
     U001 installation_features;
     U001 progression;
     U001 quest_stats;
-    U002 tutorials;
-    U002 discovery;
-    U002 points_of_interest;
-    U002 character_stats;
-    U002 skill_slots;
-    U002 campaign;
-    U002 mission_system;
-    U002 examinables;
-    Quests quests;
-    LightingScenario lighting_scenario;
+    uint32 u001;
+    U003 tutorials;
+    U003 discovery;
+    U003 points_of_interest;
+    U003 character_stats;
+    U003 skill_slots;
+    U003 campaign;
+    U003 blueprint_tracking;
+    U003 state_reset;
+    U003 game_progression;
+    U003 di_inventory;
+
+    //U003 item;
+    /*U001 character_data;
+    U001 installation_features;
+    U001 progression;
+    U001 quest_stats;
+    uint32 u002;
+    U003 item[10] <read=(ReadString_(name)), optimize=false>;*/
+    /*U003 tutorials;
+    U003 discovery;
+    U003 points_of_interest;
+    U003 character_stats;
+    U003 skill_slots;
+    U003 campaign;
+    U003 mission_system;*/
+    //U003 examinables;
+    //U003 quests;
+    //U003 lighting_scenario;
+    //U003 tracked_waypoint;
+    //U003 world_actor_state;
+    //U003 blueprint_tracking;
+    //U003 state_reset;
+    //U003 game_progression;
+    //U003 di_inventory;
 };
 
 typedef struct {
