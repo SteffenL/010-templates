@@ -330,7 +330,7 @@ struct CharacterData {
     } objectives <read=(ReadString_(name))>;
 
 
-    struct {
+    /*struct {
         String name;
         uint32 u004;
         uint32 count;
@@ -342,6 +342,51 @@ struct CharacterData {
             uint32 u004;
         } items[count] <read=(ReadString_(name)), optimize=false>;
     } objective_ui_entities <read=(ReadString_(name))>;
+
+    struct {
+        String u001;
+        uint32 u002;
+        uint32 u003;
+        String name;
+        String script_name;
+        uint32 u004;
+        read_properties_until_none();
+        uint32 u005;
+        struct {
+            String name;
+            String script_name;
+            uint32 u001;
+            read_properties_until_none();
+            uint32 u002;
+        } u006;
+        struct {
+            String name;
+            String script_name;
+            uint32 u001;
+            read_properties_until_none();
+            uint32 u002;
+        } u007;
+        struct {
+            String name;
+            String script_name;
+            uint32 u001;
+            read_properties_until_none();
+            uint32 u002;
+        } u008;
+    } u003;
+
+    struct {
+        String name;
+        uint32 u004;
+        uint32 count;
+        struct {
+            String name;
+            String script_name;
+            uint32 u003;
+            read_properties_until_none();
+            uint32 u004;
+        } items[count] <read=(ReadString_(name)), optimize=false>;
+    } objectives2 <read=(ReadString_(name))>;*/
 };
 
 typedef struct {
