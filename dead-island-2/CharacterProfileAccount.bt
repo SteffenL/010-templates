@@ -208,18 +208,22 @@ void read_properties_until_none() {
 
 struct StringToVariantPairArray {
     uint32 count;
-    struct {
-        String first;
-        Variant second;
-    } items[count] <optimize=false, read=(ReadString_(first))>;
+    if (count > 0) {
+        struct {
+            String first;
+            Variant second;
+        } items[count] <optimize=false, read=(ReadString_(first))>;
+    }
 };
 
 struct StringToInt32PairArray {
     uint32 count;
-    struct {
-        String first;
-        uint32 second;
-    } items[count] <optimize=false, read=(ReadString_(first))>;
+    if (count > 0) {
+        struct {
+            String first;
+            uint32 second;
+        } items[count] <optimize=false, read=(ReadString_(first))>;
+    }
 };
 
 struct U003_Item;
@@ -296,11 +300,15 @@ typedef struct U003_ {
 
 struct U001 {
     uint32 count;
-    struct {
-        uint32 count;
-        U003_Item items[count] <optimize=false>;
-    } u001;
-    U003 items[count] <optimize=false>;
+    if (count > 0) {
+        struct {
+            uint32 count;
+            if (count > 0) {
+                U003_Item items[count] <optimize=false>;
+            }
+        } u001;
+        U003 items[count] <optimize=false>;
+    }
 };
 
 typedef struct {
