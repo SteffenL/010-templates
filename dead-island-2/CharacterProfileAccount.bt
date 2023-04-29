@@ -317,25 +317,9 @@ typedef struct {
     local int64 pos = FTell();
     FSkip(-raw.length);
     local string name_str = ReadString_(name);
-    if (name_str == "CharacterProfileAccount") {
-        U001 character_profile_account;
-    } else if (name_str == "Options") {
-        U001 options;
-    } else if (name_str == "Account") {
-        U001 account;
-    } else if (name_str == "Challenges") {
-        U001 challenges;
-    } else if (Strlen(name_str) == 32) {
-        U001 character_data;
-    } else {
-        Assert(0, Str("[Root] Unknown item: %s", name_str));
-    }
+    U001 item;
     FSeek(pos);
 } Root_Item <read=(ReadString_(name))>;
 
-typedef struct {
-    uint32 count;
-    Root_Item items[count] <optimize=false>;
-} Root;
-
-Root root;
+uint32 count;
+Root_Item items[count] <optimize=false>;
