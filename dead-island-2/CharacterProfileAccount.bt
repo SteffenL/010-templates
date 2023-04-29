@@ -367,11 +367,6 @@ struct CharacterData {
         U005 fastscopes;
 
         uint32 u006;
-
-        U005 sectors;
-        U005 skills_unlocked;
-        U005 mission_completion;
-        U005 entitlements_granted;
     } U004 <read=(ReadString_(name))>;
 
     uint32 count;
@@ -406,6 +401,10 @@ struct CharacterData {
     U003 shortcuts;
     U003 item_rewards;
     U004 dialogue;
+    U003 sectors;
+    U003 skills_unlocked;
+    U003 mission_completion;
+    U003 entitlements_granted;
 };
 
 typedef struct {
