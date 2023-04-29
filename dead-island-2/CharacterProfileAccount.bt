@@ -272,6 +272,14 @@ typedef struct U003_Item_ {
                 Variant value;
             } item[count] <optimize=false, read=(ReadString_(key))>;
         } script_data;
+    } else if (name_str == "/Script/DeadIsland.CharacterProfileSummary") {
+        struct {
+            uint32 count;
+            struct {
+                String key;
+                Variant value;
+            } item[count] <optimize=false, read=(ReadString_(key))>;
+        } script_data;
     }
 } U003_Item <read=(ReadString_(name))>;
 
@@ -304,7 +312,7 @@ typedef struct {
     FSkip(-raw.length);
     local string name_str = ReadString_(name);
     if (name_str == "CharacterProfileAccount") {
-        //U001 character_profile_account;
+        U001 character_profile_account;
     } else if (name_str == "Options") {
         U001 options;
     } else if (name_str == "Account") {
