@@ -265,43 +265,6 @@ struct Script_DeadIsland_DIObjectivePersistentDataCollection {
 };
 
 struct CharacterData {
-    struct U001_;
-    typedef struct U001_ {
-        uint32 u002;
-        String name;
-        String script_name;
-        uint32 u003;
-        read_properties_until_none();
-        /*if (u002 > 0) {
-            U001_ items[count] <optimize=false>;
-        }*/
-    } U001 <read=(ReadString_(name))>;
-
-    struct U001_2_;
-    typedef struct U00_21_ {
-        uint32 u002;
-        String name;
-        String script_name;
-        uint32 u003;
-        read_properties_until_none();
-        /*if (u002 > 0) {
-            U001_ items[count] <optimize=false>;
-        }*/
-    } U001_2 <read=(ReadString_(name))>;
-
-    typedef struct {
-        uint32 u002;
-        String name;
-        uint32 u004;
-        uint32 u005;
-        struct {
-            String name;
-            String script_name;
-            uint32 u003;
-            read_properties_until_none();
-        } inner;
-    } U002 <read=(ReadString_(name))>;
-
     struct U003_Item_;
     typedef struct U003_Item_ {
         String name;
@@ -324,22 +287,6 @@ struct CharacterData {
             U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
         }
     } U003 <read=(ReadString_(name))>;
-
-    struct _U004_;
-    typedef struct _U004_ {
-        String name;
-        uint32 count;
-        if (count > 0) {
-            struct {
-                uint32 u001;
-                String name;
-                String script_name;
-                /*uint32 u001;
-                read_properties_until_none();
-                uint32 u002;*/
-            } items[count] <read=(ReadString_(name)), optimize=false>;
-        }
-    } _U004 <read=(ReadString_(name))>;
 
     struct U005 {
         String name; // SkillsUnlocked
