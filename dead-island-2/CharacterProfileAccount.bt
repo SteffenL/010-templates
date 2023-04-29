@@ -260,7 +260,7 @@ void read_properties_until_none() {
     }
 }
 
-struct CharacterData {
+struct U001 {
     struct U003_Item;
     typedef struct U003_Item_ {
         String name;
@@ -268,9 +268,9 @@ struct CharacterData {
         uint32 u001;
         read_properties_until_none();
         uint32 u002;
-        struct {
-            local string name_str = ReadString_(script_name);
-            if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+        local string name_str = ReadString_(script_name);
+        if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+            struct {
                 struct {
                     uint32 count;
                     struct {
@@ -278,13 +278,17 @@ struct CharacterData {
                         uint32 u002;
                     } items[count] <optimize=false>;
                 } u001;
-            } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+            } script_data;
+        } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+            struct {
                 uint32 u001;
                 uint32 u002;
-            } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+            } script_data;
+        } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+            struct {
                 uint32 u001;
-            }
-        } script_data;
+            } script_data;
+        }
     } U003_Item <read=(ReadString_(name))>;
 
     struct U003;
@@ -315,7 +319,7 @@ typedef struct {
     FSkip(-raw.length);
     local string name_str = ReadString_(name);
     if (name_str == "CharacterProfileAccount") {
-        CharacterProfileAccount character_profile_account;
+        U001 character_profile_account;
     } else if (name_str == "Options") {
         Options options;
     } else if (name_str == "Account") {
@@ -323,7 +327,7 @@ typedef struct {
     } else if (name_str == "Challenges") {
         Printf("[Root] TODO: %s\n", name_str);
     } else if (Strlen(name_str) == 32) {
-        CharacterData character_data;
+        U001 character_data;
     } else {
         Assert(0, Str("[Root] Unknown item: %s", name_str));
     }
