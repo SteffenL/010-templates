@@ -293,14 +293,7 @@ struct CharacterData {
 
         uint32 u1;
         uint32 u2;
-        struct {
-            String u3; // SkillsUnlockedData
-            String u4; // /Script/DeadIsland.SkillsUnlockedPersistentState
-
-            uint32 u5;
-            read_properties_until_none();
-            uint32 u6;
-        } items[u2] <optimize=false>;
+        U003_Item items[u2] <optimize=false>;
     };
 
     struct U004_;
@@ -309,12 +302,12 @@ struct CharacterData {
         uint32 u001;
         uint32 u002;
 
-        U005 global;
+        U003 global;
 
         uint32 u003;
         uint32 u004;
 
-        U005 fastscopes;
+        U003 fastscopes;
 
         uint32 u006;
     } U004 <read=(ReadString_(name))>;
