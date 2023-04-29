@@ -316,7 +316,7 @@ typedef struct {
     } else if (name_str == "Account") {
         U001 account;
     } else if (name_str == "Challenges") {
-        Printf("[Root] TODO: %s\n", name_str);
+        U001 challenges;
     } else if (Strlen(name_str) == 32) {
         U001 character_data;
     } else {
