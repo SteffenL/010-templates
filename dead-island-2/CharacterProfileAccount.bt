@@ -260,86 +260,52 @@ void read_properties_until_none() {
     }
 }
 
-struct Script_DeadIsland_DIObjectivePersistentDataCollection {
-
-};
-
 struct CharacterData {
-    struct U003_Item_;
+    struct U003_Item;
     typedef struct U003_Item_ {
         String name;
         String script_name;
         uint32 u001;
         read_properties_until_none();
         uint32 u002;
+        struct {
+            local string name_str = ReadString_(script_name);
+            if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+                struct {
+                    uint32 count;
+                    struct {
+                        String u001;
+                        uint32 u002;
+                    } items[count] <optimize=false>;
+                } u001;
+            } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+                uint32 u001;
+                uint32 u002;
+            } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+                uint32 u001;
+            }
+        } script_data;
     } U003_Item <read=(ReadString_(name))>;
 
-    struct U003_;
+    struct U003;
     typedef struct U003_ {
-        //uint32 x;
         String name;
         uint32 u001;
         uint32 count;
         if (count > 0) {
-            U003_Item_ items[count] <read=(ReadString_(name)), optimize=false>;
+            U003_Item items[count] <read=(ReadString_(name)), optimize=false>;
         }
         if (u001 > 0) {
-            U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
+            U003 u002[u001] <read=(ReadString_(name)), optimize=false>;
         }
     } U003 <read=(ReadString_(name))>;
 
-
-    struct U004_;
-    typedef struct U004_ {
-        String name; // Dialogue
-        uint32 u001;
-        uint32 u002;
-
-        U003 global;
-
-        uint32 u003;
-        uint32 u004;
-
-        U003 fastscopes;
-
-        uint32 u006;
-    } U004 <read=(ReadString_(name))>;
-
-    uint32 count; // == 21 and we have 21 x U003
-    struct {
-        uint32 count; // == 4 and we have 4 x U003_Item
-        U003_Item items[count] <optimize=false>;
-    } u001;
-    U003 tutorials;
-    U003 discovery;
-    U003 points_of_interest;
-    U003 character_stats;
-    U003 skill_slots;
-    U003 campaign;
-    U003 blueprint_tracking;
-    U003 state_reset;
-    U003 game_progression;
-    U003 di_inventory;
-
+    uint32 count;
     struct {
         uint32 count;
-        struct {
-            String u001;
-            uint32 u002;
-        } items[count] <optimize=false>;
-    } u002;
-
-    U003 challenges;
-    U003 stat_gathering;
-    U003 game_entitlements;
-    U003 examinable_objects;
-    U003 shortcuts;
-    U003 item_rewards;
-    U004 dialogue;
-    U003 sectors;
-    U003 skills_unlocked;
-    U003 mission_completion;
-    U003 entitlements_granted;
+        U003_Item items[count] <optimize=false>;
+    } u001;
+    U003 items[count] <optimize=false>;
 };
 
 typedef struct {
