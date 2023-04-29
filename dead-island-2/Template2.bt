@@ -197,60 +197,6 @@ struct Variant {
     FSeek(pos);
 };
 
-struct CharacterProfileAccount {
-    uint32 u001;
-    uint32 u002;
-    String name;
-    String script_name;
-    uint32 u005;
-    Property profile_ids;
-    Property account_privileges;
-    Property active_character;
-    Property u006;
-    uint32 u007;
-    struct {
-        String u001;
-        uint32 count;
-        uint32 u003;
-
-        struct {
-            String u004;
-            uint32 u005;
-            uint32 u006;
-            String name;
-            String script_name;
-            uint32 u009;
-            String u010;
-            uint32 u011;
-    
-            uint32 count;
-            struct {
-                String key;
-                Variant value;
-            } items[count] <optimize=false, read=(ReadString_(key))>;
-        } items[count] <optimize=false>;
-    } profile_summaries;
-};
-
-struct Options {
-    uint32 u001;
-    uint32 u002;
-    String u003;
-    uint32 u004;
-    uint32 u005;
-    String name;
-    String script_name;
-    uint32 u008;
-    String u009;
-    uint32 u010;
-
-    uint32 count;
-    struct {
-        String key;
-        Variant value;
-    } item[count] <optimize=false, read=(ReadString_(key))>;
-};
-
 void read_properties_until_none() {
     while (true) {
         Property property;
@@ -260,179 +206,122 @@ void read_properties_until_none() {
     }
 }
 
-struct Script_DeadIsland_DIObjectivePersistentDataCollection {
+struct U001_;
+typedef struct U001_ {
+    uint32 u002;
+    String name;
+    String script_name;
+    uint32 u003;
+    read_properties_until_none();
+    /*if (u002 > 0) {
+        U001_ items[count] <optimize=false>;
+    }*/
+} U001 <read=(ReadString_(name))>;
 
-};
+struct U001_2_;
+typedef struct U00_21_ {
+    uint32 u002;
+    String name;
+    String script_name;
+    uint32 u003;
+    read_properties_until_none();
+    /*if (u002 > 0) {
+        U001_ items[count] <optimize=false>;
+    }*/
+} U001_2 <read=(ReadString_(name))>;
 
-struct CharacterData {
-    struct U001_;
-    typedef struct U001_ {
-        uint32 u002;
+typedef struct {
+    uint32 u002;
+    String name;
+    uint32 u004;
+    uint32 u005;
+    struct {
         String name;
         String script_name;
         uint32 u003;
         read_properties_until_none();
-        /*if (u002 > 0) {
-            U001_ items[count] <optimize=false>;
-        }*/
-    } U001 <read=(ReadString_(name))>;
+    } inner;
+} U002 <read=(ReadString_(name))>;
 
-    struct U001_2_;
-    typedef struct U00_21_ {
-        uint32 u002;
-        String name;
-        String script_name;
-        uint32 u003;
-        read_properties_until_none();
-        /*if (u002 > 0) {
-            U001_ items[count] <optimize=false>;
-        }*/
-    } U001_2 <read=(ReadString_(name))>;
-
-    typedef struct {
-        uint32 u002;
-        String name;
-        uint32 u004;
-        uint32 u005;
+struct U003_;
+typedef struct U003_ {
+    //uint32 x;
+    String name;
+    uint32 u001;
+    uint32 count;
+    if (count > 0) {
         struct {
             String name;
             String script_name;
-            uint32 u003;
+            uint32 u001;
             read_properties_until_none();
-        } inner;
-    } U002 <read=(ReadString_(name))>;
-
-    struct U003_;
-    typedef struct U003_ {
-        //uint32 x;
-        String name;
-        uint32 u001;
-        uint32 count;
-        if (count > 0) {
-            struct {
-                String name;
-                String script_name;
-                uint32 u001;
-                read_properties_until_none();
-                uint32 u002;
-            } items[count] <read=(ReadString_(name)), optimize=false>;
-        }
-        if (u001 > 0) {
-            U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
-        }
-    } U003 <read=(ReadString_(name))>;
-
-    struct _U004_;
-    typedef struct _U004_ {
-        String name;
-        uint32 count;
-        if (count > 0) {
-            struct {
-                uint32 u001;
-                String name;
-                String script_name;
-                /*uint32 u001;
-                read_properties_until_none();
-                uint32 u002;*/
-            } items[count] <read=(ReadString_(name)), optimize=false>;
-        }
-    } _U004 <read=(ReadString_(name))>;
-
-    struct U005 {
-        String name; // SkillsUnlocked
-
-        uint32 u1;
-        uint32 u2;
-        struct {
-            String u3; // SkillsUnlockedData
-            String u4; // /Script/DeadIsland.SkillsUnlockedPersistentState
-
-            uint32 u5;
-            read_properties_until_none();
-            uint32 u6;
-        } items[u2] <optimize=false>;
-    };
-
-    struct U004_;
-    typedef struct U004_ {
-        String name; // Dialogue
-        uint32 u001;
-        uint32 u002;
-
-        U005 global;
-
-        uint32 u003;
-        uint32 u004;
-
-        U005 fastscopes;
-
-        uint32 u006;
-
-        U005 sectors;
-        U005 skills_unlocked;
-        U005 mission_completion;
-        U005 entitlements_granted;
-    } U004 <read=(ReadString_(name))>;
-
-    uint32 count;
-    U001 character_data;
-    U001 installation_features;
-    U001 progression;
-    U001 quest_stats;
-    uint32 u001;
-    U003 tutorials;
-    U003 discovery;
-    U003 points_of_interest;
-    U003 character_stats;
-    U003 skill_slots;
-    U003 campaign;
-    U003 blueprint_tracking;
-    U003 state_reset;
-    U003 game_progression;
-    U003 di_inventory;
-
-    struct {
-        uint32 count;
-        struct {
-            String u001;
             uint32 u002;
-        } items[count] <optimize=false>;
-    } u002;
+        } items[count] <read=(ReadString_(name)), optimize=false>;
+    }
+    if (u001 > 0) {
+        U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
+    }
+} U003 <read=(ReadString_(name))>;
 
-    U003 challenges;
-    U003 stat_gathering;
-    U003 game_entitlements;
-    U003 examinable_objects;
-    U003 shortcuts;
-    U003 item_rewards;
-    U004 dialogue;
+struct Item {
+    String name;
+    String script_name;
+    uint32 u001;
+    read_properties_until_none();
+    uint32 u002;
 };
 
-typedef struct {
+struct Folder {
+    uint32 u1;
     String name;
-    Data raw;
-    local int64 pos = FTell();
-    FSkip(-raw.length);
-    local string name_str = ReadString_(name);
-    if (name_str == "CharacterProfileAccount") {
-        CharacterProfileAccount character_profile_account;
-    } else if (name_str == "Options") {
-        Options options;
-    } else if (name_str == "Account") {
-        Printf("[Root] TODO: %s\n", name_str);
-    } else if (name_str == "Challenges") {
-        Printf("[Root] TODO: %s\n", name_str);
-    } else if (Strlen(name_str) == 32) {
-        CharacterData character_data;
-    } else {
-        Assert(0, Str("[Root] Unknown item: %s", name_str));
+    uint32 u2;
+    uint32 item_count;
+    if (item_count > 0) {
+        Item items[item_count] <optimize=false>;
     }
-    FSeek(pos);
-} Root_Item <read=(ReadString_(name))>;
+};
 
-typedef struct {
+struct U005 {
+    String name; // SkillsUnlocked
+
+    uint32 u1;
+    uint32 u2;
+    struct {
+        String u3; // SkillsUnlockedData
+        String u4; // /Script/DeadIsland.SkillsUnlockedPersistentState
+    
+        uint32 u5;
+        read_properties_until_none();
+        uint32 u6;
+    } items[u2] <optimize=false>;
+};
+
+struct U004_;
+typedef struct U004_ {
+    String name; // Dialogue
+    uint32 u001;
+    uint32 u002;
+
+
+    U005 global;
+
+    uint32 u003;
+    uint32 u004;
+
+    U005 fastscopes;
+
+    uint32 u006;
+
+    U005 sectors;
+    U005 skills_unlocked;
+    U005 mission_completion;
+    U005 entitlements_granted;
+} U004 <read=(ReadString_(name))>;
+
+U004 Dialogue;
+
+/*struct {
+    String name;
     uint32 count;
-    Root_Item items[count] <optimize=false>;
-} Root;
-
-Root root;
+    Folder folders[1] <optimize=false>;
+} a;*/
