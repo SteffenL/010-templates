@@ -302,6 +302,15 @@ struct CharacterData {
         } inner;
     } U002 <read=(ReadString_(name))>;
 
+    struct U003_Item_;
+    typedef struct U003_Item_ {
+        String name;
+        String script_name;
+        uint32 u001;
+        read_properties_until_none();
+        uint32 u002;
+    } U003_Item <read=(ReadString_(name))>;
+
     struct U003_;
     typedef struct U003_ {
         //uint32 x;
@@ -309,13 +318,7 @@ struct CharacterData {
         uint32 u001;
         uint32 count;
         if (count > 0) {
-            struct {
-                String name;
-                String script_name;
-                uint32 u001;
-                read_properties_until_none();
-                uint32 u002;
-            } items[count] <read=(ReadString_(name)), optimize=false>;
+            U003_Item_ items[count] <read=(ReadString_(name)), optimize=false>;
         }
         if (u001 > 0) {
             U003_ u002[u001] <read=(ReadString_(name)), optimize=false>;
@@ -369,12 +372,12 @@ struct CharacterData {
         uint32 u006;
     } U004 <read=(ReadString_(name))>;
 
-    uint32 count;
-    U001 character_data;
-    U001 installation_features;
-    U001 progression;
-    U001 quest_stats;
-    uint32 u001;
+    uint32 count; // == 21 and we have 21 x U003
+    uint32 count2; // == 4 and we have 4 x U003_Item
+    U003_Item character_data;
+    U003_Item installation_features;
+    U003_Item progression;
+    U003_Item quest_stats;
     U003 tutorials;
     U003 discovery;
     U003 points_of_interest;
