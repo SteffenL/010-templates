@@ -30,6 +30,8 @@ struct chunk_header_t {
 char unknown1[12];
 uint32 compression_length;
 char compression[compression_length] <optimize=false>;
-chunk_header_t chunk_header[14] <optimize=false>;
+while (ReadUInt() != 0x5A13FC42) {
+    chunk_header_t chunk_header <optimize=false>;
+}
 uint32 unknown2;
 char maybe_hash[8];

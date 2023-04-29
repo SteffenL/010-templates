@@ -288,13 +288,6 @@ struct CharacterData {
         }
     } U003 <read=(ReadString_(name))>;
 
-    struct U005 {
-        String name; // SkillsUnlocked
-
-        uint32 u1;
-        uint32 u2;
-        U003_Item items[u2] <optimize=false>;
-    };
 
     struct U004_;
     typedef struct U004_ {
@@ -313,11 +306,10 @@ struct CharacterData {
     } U004 <read=(ReadString_(name))>;
 
     uint32 count; // == 21 and we have 21 x U003
-    uint32 count2; // == 4 and we have 4 x U003_Item
-    U003_Item character_data;
-    U003_Item installation_features;
-    U003_Item progression;
-    U003_Item quest_stats;
+    struct {
+        uint32 count; // == 4 and we have 4 x U003_Item
+        U003_Item items[count] <optimize=false>;
+    } u001;
     U003 tutorials;
     U003 discovery;
     U003 points_of_interest;
