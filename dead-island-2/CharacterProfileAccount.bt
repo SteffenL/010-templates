@@ -197,60 +197,6 @@ struct Variant {
     FSeek(pos);
 };
 
-struct CharacterProfileAccount {
-    uint32 u001;
-    uint32 u002;
-    String name;
-    String script_name;
-    uint32 u005;
-    Property profile_ids;
-    Property account_privileges;
-    Property active_character;
-    Property u006;
-    uint32 u007;
-    struct {
-        String u001;
-        uint32 count;
-        uint32 u003;
-
-        struct {
-            String u004;
-            uint32 u005;
-            uint32 u006;
-            String name;
-            String script_name;
-            uint32 u009;
-            String u010;
-            uint32 u011;
-    
-            uint32 count;
-            struct {
-                String key;
-                Variant value;
-            } items[count] <optimize=false, read=(ReadString_(key))>;
-        } items[count] <optimize=false>;
-    } profile_summaries;
-};
-
-struct Options {
-    uint32 u001;
-    uint32 u002;
-    String u003;
-    uint32 u004;
-    uint32 u005;
-    String name;
-    String script_name;
-    uint32 u008;
-    String u009;
-    uint32 u010;
-
-    uint32 count;
-    struct {
-        String key;
-        Variant value;
-    } item[count] <optimize=false, read=(ReadString_(key))>;
-};
-
 void read_properties_until_none() {
     while (true) {
         Property property;
@@ -260,50 +206,89 @@ void read_properties_until_none() {
     }
 }
 
-struct U001 {
-    struct U003_Item;
-    typedef struct U003_Item_ {
-        String name;
-        String script_name;
-        uint32 u001;
-        read_properties_until_none();
-        uint32 u002;
-        local string name_str = ReadString_(script_name);
-        if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+struct U003_Item;
+typedef struct U003_Item_ {
+    String name;
+    String script_name;
+    uint32 u001;
+    read_properties_until_none();
+    uint32 u002;
+    local string name_str = ReadString_(script_name);
+    if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+        struct {
             struct {
+                uint32 count;
                 struct {
-                    uint32 count;
+                    String u001;
+                    uint32 u002;
+                } items[count] <optimize=false>;
+            } u001;
+        } script_data;
+    } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+        struct {
+            uint32 maybe_item_type;
+            uint32 count;
+            switch (maybe_item_type) {
+                case 115:
                     struct {
-                        String u001;
-                        uint32 u002;
-                    } items[count] <optimize=false>;
-                } u001;
-            } script_data;
-        } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+                        String name;
+                        uint32 u004;
+                        uint32 u005;
+                        uint32 u006;
+                    } item_115[count] <optimize=false>;
+                    break;
+                default:
+                    // Can't figure out what the structure is without inspecting the data so only fail if we have data
+                    if (count > 0) {
+                        Assert(0, Str("Unknown item type %u, script %s", maybe_item_type, name_str));
+                    }
+                    Printf("TODO: Item type %u, script %s\n", maybe_item_type, name_str);
+                    break;
+            }
+        } script_data;
+    } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+        struct {
+            // Probably count and we need to figure out the structure of the items
+            uint32 u001;
+            Assert(u001 == 0);
+        } script_data;
+    } else if (name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
+        struct {
+            uint32 count;
             struct {
-                uint32 u001;
-                uint32 u002;
-            } script_data;
-        } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+                String name;
+                uint32 count;
+                struct {
+                    String name;
+                    uint32 count;
+                } items[count] <optimize=false>;
+            } items[count] <optimize=false>;
+        } script_data;
+    } else if (name_str == "/Script/DSFramework.OptionsHierarchyPersistentState") {
+        struct {
+            uint32 count;
             struct {
-                uint32 u001;
-            } script_data;
-        }
-    } U003_Item <read=(ReadString_(name))>;
+                String key;
+                Variant value;
+            } item[count] <optimize=false, read=(ReadString_(key))>;
+        } script_data;
+    }
+} U003_Item <read=(ReadString_(name))>;
 
-    struct U003;
-    typedef struct U003_ {
-        String name;
-        uint32 u001;
-        uint32 count;
-        if (count > 0) {
-            U003_Item items[count] <read=(ReadString_(name)), optimize=false>;
-        }
-        if (u001 > 0) {
-            U003 u002[u001] <read=(ReadString_(name)), optimize=false>;
-        }
-    } U003 <read=(ReadString_(name))>;
+struct U003;
+typedef struct U003_ {
+    String name;
+    uint32 u001;
+    uint32 count;
+    if (count > 0) {
+        U003_Item items[count] <read=(ReadString_(name)), optimize=false>;
+    }
+    if (u001 > 0) {
+        U003 u002[u001] <read=(ReadString_(name)), optimize=false>;
+    }
+} U003 <read=(ReadString_(name))>;
 
+struct U001 {
     uint32 count;
     struct {
         uint32 count;
@@ -319,11 +304,11 @@ typedef struct {
     FSkip(-raw.length);
     local string name_str = ReadString_(name);
     if (name_str == "CharacterProfileAccount") {
-        U001 character_profile_account;
+        //U001 character_profile_account;
     } else if (name_str == "Options") {
-        Options options;
+        U001 options;
     } else if (name_str == "Account") {
-        Printf("[Root] TODO: %s\n", name_str);
+        U001 account;
     } else if (name_str == "Challenges") {
         Printf("[Root] TODO: %s\n", name_str);
     } else if (Strlen(name_str) == 32) {
