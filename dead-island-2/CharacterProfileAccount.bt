@@ -88,6 +88,16 @@ struct PropertyTag {
     }
 };
 
+struct Property;
+void read_properties_until_none() {
+    while (true) {
+        Property property;
+        if (ReadString_(property.tag.name) == "None") {
+            break;
+        }
+    }
+}
+
 typedef struct Property_ {
     PropertyTag tag;
     local string name_str = ReadString_(tag.name);
@@ -99,34 +109,34 @@ typedef struct Property_ {
     }
     local string type_str = ReadString_(tag.type);
     local int64 data_pos = FTell();
-    /*if (type_str == "ArrayProperty") {
-        struct {
+    byte raw_data[tag.size];
+    FSeek(data_pos);
+    if (type_str == "ArrayProperty") {
+        /*struct {
             int32 count;
             PropertyTag inner_tag;
             local string struct_name = ReadString_(inner_tag.struct_name);
             struct {
-                struct {
-                    if (struct_name == "Guid") {
-                        Guid guid;
-                    } else if (struct_name == "StrProperty") {
-                        String str;
-                    } else {
-                        Assert(0, Str("[Property] Unknown inner tag struct name: %s", struct_name));
-                    }
-                } value[count] <optimize=false>;
-            } values;
-        } array_property;
-    } else*/ if (type_str == "EnumProperty") {
+                if (struct_name == "Guid") {
+                    Guid guid;
+                } else if (struct_name == "StrProperty") {
+                    String str;
+                } else {
+                    Assert(0, Str("[Property] Unknown inner tag struct name: %s", struct_name));
+                }
+            } items[count] <optimize=false>;
+        } value;
+        Assert(0);*/
+    } else if (type_str == "EnumProperty") {
         String value;
     } else if (type_str == "FloatProperty") {
         float value;
     } else if (type_str == "IntProperty") {
         int32 value;
     } else {
-        //Printf("[Property] TODO: %s\n", type_str);
+        Printf("[Property] TODO: %s\n", type_str);
     }
-    FSeek(data_pos);
-    byte raw_data[tag.size];
+    FSeek(data_pos + tag.size);
 } Property <name=(ReadString_(tag.name))>;
 
 enum VariantType {
@@ -196,15 +206,6 @@ struct Variant {
     }
     FSeek(pos);
 };
-
-void read_properties_until_none() {
-    while (true) {
-        Property property;
-        if (ReadString_(property.tag.name) == "None") {
-            break;
-        }
-    }
-}
 
 struct StringToVariantPairArray {
     uint32 count;
