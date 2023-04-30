@@ -257,7 +257,7 @@ typedef struct U003_Item_ {
                     if (count > 0) {
                         Assert(0, Str("Unknown item type %u, script %s", maybe_item_type, name_str));
                     }
-                    Printf("TODO: Item type %u, script %s\n", maybe_item_type, name_str);
+                    Printf("[U003_Item] TODO: Item type %u, script %s\n", maybe_item_type, name_str);
                     break;
             }
         } script_data;
