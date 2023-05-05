@@ -160,6 +160,8 @@ typedef struct Property_ {
             struct {
                 if (inner_type_str == "StrProperty" || inner_type_str == "ObjectProperty" || inner_type_str == "NameProperty") {
                     String value;
+                } else if (inner_type_str == "UInt32Property") {
+                    uint32 value;
                 } else {
                     Assert(0, Str("[Property] Unhandled ArrayProperty inner type %s", inner_type_str));
                 }
@@ -296,6 +298,14 @@ typedef struct U003_Item_ {
                         uint32 u005;
                         uint32 u006;
                     } item_115[count] <optimize=false>;
+                    break;
+                case 424:
+                    struct {
+                        String name;
+                        uint32 u001;
+                        uint32 u002;
+                        uint32 u003;
+                    } item_424[count] <optimize=false>;
                     break;
                 default:
                     // Can't figure out what the structure is without inspecting the data so only fail if we have data
