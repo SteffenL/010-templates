@@ -182,7 +182,7 @@ typedef struct Property_ {
         //Assert(0);
     }
     FSeek(data_pos + tag.size);
-} Property <read=(ReadString_(tag.name))>;
+} Property <name=(ReadString_(tag.name))>;
 
 enum VariantType {
     VariantType_Empty = 0,
@@ -359,15 +359,18 @@ struct U001 {
     }
 };
 
-typedef struct {
-    String name;
-    Data raw;
-    local int64 pos = FTell();
-    FSkip(-raw.length);
-    local string name_str = ReadString_(name);
-    U001 item;
-    FSeek(pos);
-} Root_Item <read=(ReadString_(name))>;
 
+uint32 u001;
 uint32 count;
-Root_Item items[count] <optimize=false>;
+
+struct {
+    String key;
+    struct {
+        String name;
+        String type;
+        uint32 u006;
+        uint32 u007;
+        uint16 u008;
+        String u009;
+    } value;
+} items[count] <optimize=false>;
