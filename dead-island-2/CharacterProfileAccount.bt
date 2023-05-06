@@ -318,9 +318,14 @@ typedef struct U003_Item_ {
         } script_data;
     } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
         struct {
-            // Probably count and we need to figure out the structure of the items
-            uint32 u001;
-            Assert(u001 == 0);
+            uint32 count;
+            struct {
+                String u001;
+                String u002;
+                uint32 u003;
+                uint32 u004;
+                uint32 u005;
+            } item[count] <optimize=false>;
         } script_data;
     } else if (name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
         struct {
