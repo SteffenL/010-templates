@@ -288,33 +288,14 @@ typedef struct U003_Item_ {
         } script_data;
     } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
         struct {
-            uint32 maybe_item_type;
+            uint32 u001;
             uint32 count;
-            switch (maybe_item_type) {
-                case 115:
-                    struct {
-                        String name;
-                        uint32 u004;
-                        uint32 u005;
-                        uint32 u006;
-                    } item_115[count] <optimize=false>;
-                    break;
-                case 424:
-                    struct {
-                        String name;
-                        uint32 u001;
-                        uint32 u002;
-                        uint32 u003;
-                    } item_424[count] <optimize=false>;
-                    break;
-                default:
-                    // Can't figure out what the structure is without inspecting the data so only fail if we have data
-                    if (count > 0) {
-                        Assert(0, Str("Unknown item type %u, script %s", maybe_item_type, name_str));
-                    }
-                    Printf("[U003_Item] TODO: Item type %u, script %s\n", maybe_item_type, name_str);
-                    break;
-            }
+            struct {
+                String name;
+                uint32 u004;
+                uint32 u005;
+                uint32 u006;
+            } items[count] <optimize=false>;
         } script_data;
     } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
         struct {
@@ -363,13 +344,13 @@ typedef struct U003_ {
 
 struct U001 {
     uint32 count;
+    struct {
+        uint32 count;
+        if (count > 0) {
+            U003_Item items[count] <optimize=false>;
+        }
+    } u001;
     if (count > 0) {
-        struct {
-            uint32 count;
-            if (count > 0) {
-                U003_Item items[count] <optimize=false>;
-            }
-        } u001;
         U003 items[count] <optimize=false>;
     }
 };
