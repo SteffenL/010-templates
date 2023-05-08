@@ -101,90 +101,9 @@ struct PropertyTag {
     }
 };
 
-struct Property;
-void read_properties_until_none() {
-    while (true) {
-        Property property;
-        if (ReadString_(property.tag.name) == "None") {
-            break;
-        }
-    }
-}
-
-struct UObject {
-    // Script Properties
+struct FProperty(const string& type) {
+    Printf("[FProperty] TODO: Property type %s\n", type);
 };
-
-struct UField;
-struct UField {
-    UObject Super;
-    UField Next;
-};
-
-struct UProperty {
-    UField Super;
-};
-
-struct UStruct {
-    UField Super;
-};
-
-struct UArrayProperty {
-    UProperty Super;
-	int32			ArrayDim;
-	//EPropertyFlags	PropertyFlags;
-	//int32			ElementSize;
-	//uint16			RepIndex;
-	//FName		RepNotifyFunc;
-};
-
-typedef struct Property_ {
-    PropertyTag tag;
-    local string name_str = ReadString_(tag.name);
-    if (name_str == "None") {
-        return;
-    }
-    if (tag.size == 0) {
-        return;
-    }
-    local string type_str = ReadString_(tag.type);
-    local int64 data_pos = FTell();
-    byte raw_data[tag.size];
-    FSeek(data_pos);
-    if (type_str == "ArrayProperty") {
-        local string inner_type_str = ReadString_(tag.inner_type);
-        int32 count;
-        if (inner_type_str == "StructProperty") {
-            Property value;
-        } else if (count > 0) {
-            struct {
-                if (inner_type_str == "StrProperty" || inner_type_str == "ObjectProperty" || inner_type_str == "NameProperty") {
-                    String value;
-                } else if (inner_type_str == "UInt32Property") {
-                    uint32 value;
-                } else {
-                    Assert(0, Str("[Property] Unhandled ArrayProperty inner type %s", inner_type_str));
-                }
-            } items[count] <optimize=false>;
-        }
-    } else if (type_str == "MapProperty") {
-        local string inner_type_str = ReadString_(tag.inner_type);
-        local string value_type_str = ReadString_(tag.value_type);
-
-    } else if (type_str == "EnumProperty") {
-        String value;
-    } else if (type_str == "FloatProperty") {
-        float value;
-    } else if (type_str == "IntProperty") {
-        int32 value;
-    } else if (type_str == "StrProperty") {
-        String value;
-    } else {
-        Printf("[Property] TODO: %s\n", type_str);
-        //Assert(0);
-    }
-    FSeek(data_pos + tag.size);
-} Property <read=(ReadString_(tag.name))>;
 
 enum VariantType {
     VariantType_Empty = 0,
@@ -274,17 +193,44 @@ struct StringToInt32PairArray {
     }
 };
 
-struct U003_Item;
-typedef struct U003_Item_ {
+struct UStruct {
+    // UObject
+    // if ObjClass != UClass {
+        // Properties: SerializeScriptProperties
+    // }
+    // Tagged properties
+    local byte foundNone = 0;
+    while (!foundNone) {
+        struct {
+            PropertyTag tag;
+            local string name_str = ReadString_(tag.name);
+            if (name_str == "None") {
+                foundNone = 1;
+                return;
+            }
+            local string type_str = ReadString_(tag.type);
+            if (type_str == "BoolProperty") {
+                // Set the property's value from the tag for booleans
+            } else {
+                local int64 data_start_pos = FTell();
+                FProperty taggedProperty(type_str);
+                FSeek(data_start_pos);
+                byte taggedPropertyBytes[tag.size];
+            }
+        } taggedProperties;
+    }
+};
+
+typedef struct U004_ {
     String name;
     String script_name;
     uint32 u001;
-    read_properties_until_none();
-    uint32 u002;
+    UStruct u002;
+    uint32 u003;
     local string name_str = ReadString_(script_name);
-    if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+    if (name_str == "/Script/DeadIsland.CharacterProfileSummary") {
         struct {
-            StringToInt32PairArray u001;
+            StringToVariantPairArray items;
         } script_data;
     } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
         struct {
@@ -297,6 +243,18 @@ typedef struct U003_Item_ {
                 uint32 u006;
             } items[count] <optimize=false>;
         } script_data;
+    } else if (name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
+        struct {
+            uint32 count;
+            struct {
+                String name;
+                StringToInt32PairArray items;
+            } items[count] <optimize=false>;
+        } script_data;
+    } else if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+        struct {
+            StringToInt32PairArray u001;
+        } script_data;
     } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
         struct {
             uint32 count;
@@ -308,26 +266,14 @@ typedef struct U003_Item_ {
                 uint32 u005;
             } item[count] <optimize=false>;
         } script_data;
-    } else if (name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
-        struct {
-            uint32 count;
-            struct {
-                String name;
-                StringToInt32PairArray items;
-            } items[count] <optimize=false>;
-        } script_data;
     } else if (name_str == "/Script/DSFramework.OptionsHierarchyPersistentState") {
         struct {
             StringToVariantPairArray items;
         } script_data;
-    } else if (name_str == "/Script/DeadIsland.CharacterProfileSummary") {
-        struct {
-            StringToVariantPairArray items;
-        } script_data;
     } else {
-        Printf("[U003_Item] TODO: Script %s\n", name_str);
+        Printf("[U004] TODO: Script %s\n", name_str);
     }
-} U003_Item <read=(ReadString_(name))>;
+} U004 <read=(ReadString_(name))>;
 
 struct U003;
 typedef struct U003_ {
@@ -335,10 +281,10 @@ typedef struct U003_ {
     uint32 u001;
     uint32 count;
     if (count > 0) {
-        U003_Item items[count] <read=(ReadString_(name)), optimize=false>;
+        U004 items[count] <optimize=false>;
     }
     if (u001 > 0) {
-        U003 u002[u001] <read=(ReadString_(name)), optimize=false>;
+        U003 u002[u001] <optimize=false>;
     }
 } U003 <read=(ReadString_(name))>;
 
@@ -347,7 +293,7 @@ struct U001 {
     struct {
         uint32 count;
         if (count > 0) {
-            U003_Item items[count] <optimize=false>;
+            U004 items[count] <optimize=false>;
         }
     } u001;
     if (count > 0) {
