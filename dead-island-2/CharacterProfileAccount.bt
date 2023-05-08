@@ -101,8 +101,8 @@ struct PropertyTag {
     }
 };
 
-struct FProperty(const string& type) {
-    Printf("[FProperty] TODO: Property type %s\n", type);
+struct Property(const string& type) {
+    Printf("[Property] TODO: Property type %s\n", type);
 };
 
 enum VariantType {
@@ -193,11 +193,12 @@ struct StringToInt32PairArray {
     }
 };
 
-struct UStruct {
-    // UObject
-    // if ObjClass != UClass {
-        // Properties: SerializeScriptProperties
-    // }
+typedef struct U004_ {
+    String name;
+    String package_name;
+
+    uint32 u001;
+
     // Tagged properties
     local byte foundNone = 0;
     while (!foundNone) {
@@ -213,26 +214,21 @@ struct UStruct {
                 // Set the property's value from the tag for booleans
             } else {
                 local int64 data_start_pos = FTell();
-                FProperty taggedProperty(type_str);
+                Property taggedProperty(type_str);
                 FSeek(data_start_pos);
                 byte taggedPropertyBytes[tag.size];
             }
         } taggedProperties;
     }
-};
 
-typedef struct U004_ {
-    String name;
-    String script_name;
-    uint32 u001;
-    UStruct u002;
     uint32 u003;
-    local string name_str = ReadString_(script_name);
-    if (name_str == "/Script/DeadIsland.CharacterProfileSummary") {
+
+    local string package_name_str = ReadString_(package_name);
+    if (package_name_str == "/Script/DeadIsland.CharacterProfileSummary") {
         struct {
             StringToVariantPairArray items;
         } script_data;
-    } else if (name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+    } else if (package_name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
         struct {
             uint32 u001;
             uint32 count;
@@ -243,7 +239,7 @@ typedef struct U004_ {
                 uint32 u006;
             } items[count] <optimize=false>;
         } script_data;
-    } else if (name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
+    } else if (package_name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
         struct {
             uint32 count;
             struct {
@@ -251,11 +247,11 @@ typedef struct U004_ {
                 StringToInt32PairArray items;
             } items[count] <optimize=false>;
         } script_data;
-    } else if (name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+    } else if (package_name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
         struct {
             StringToInt32PairArray u001;
         } script_data;
-    } else if (name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+    } else if (package_name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
         struct {
             uint32 count;
             struct {
@@ -266,12 +262,12 @@ typedef struct U004_ {
                 uint32 u005;
             } item[count] <optimize=false>;
         } script_data;
-    } else if (name_str == "/Script/DSFramework.OptionsHierarchyPersistentState") {
+    } else if (package_name_str == "/Script/DSFramework.OptionsHierarchyPersistentState") {
         struct {
             StringToVariantPairArray items;
         } script_data;
     } else {
-        Printf("[U004] TODO: Script %s\n", name_str);
+        Printf("[U004] TODO: Script %s\n", package_name_str);
     }
 } U004 <read=(ReadString_(name))>;
 
