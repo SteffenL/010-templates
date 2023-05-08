@@ -193,7 +193,7 @@ struct StringToInt32PairArray {
     }
 };
 
-typedef struct U004_ {
+typedef struct {
     String name;
     String package_name;
 
@@ -269,43 +269,33 @@ typedef struct U004_ {
     } else {
         Printf("[U004] TODO: Script %s\n", package_name_str);
     }
-} U004 <read=(ReadString_(name))>;
+} U002 <read=(ReadString_(name))>;
 
-struct U003;
-typedef struct U003_ {
+struct U001;
+typedef struct (byte root) {
     String name;
-    uint32 u001;
-    uint32 count;
-    if (count > 0) {
-        U004 items[count] <optimize=false>;
+    if (root) {
+        Data raw;
+        local int64 pos = FTell();
+        FSkip(-raw.length);
+        local string name_str = ReadString_(name);
     }
-    if (u001 > 0) {
-        U003 u002[u001] <optimize=false>;
-    }
-} U003 <read=(ReadString_(name))>;
-
-struct U001 {
-    uint32 count;
+    uint32 items_2_count;
     struct {
         uint32 count;
         if (count > 0) {
-            U004 items[count] <optimize=false>;
+            U002 elements[count] <optimize=false>;
         }
-    } u001;
-    if (count > 0) {
-        U003 items[count] <optimize=false>;
+    } items_1;
+    if (items_2_count > 0) {
+        struct {
+            U001 elements(0)[items_2_count] <optimize=false>;
+        } items_2;
     }
-};
-
-typedef struct {
-    String name;
-    Data raw;
-    local int64 pos = FTell();
-    FSkip(-raw.length);
-    local string name_str = ReadString_(name);
-    U001 item;
-    FSeek(pos);
-} StateElement <read=(ReadString_(name))>;
+    if (root) {
+        FSeek(pos);
+    }
+} U001 <read=(ReadString_(name))>;
 
 uint32 count;
-StateElement items[count] <optimize=false>;
+U001 items(1)[count] <optimize=false>;
