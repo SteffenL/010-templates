@@ -305,7 +305,7 @@ typedef struct {
     local string name_str = ReadString_(name);
     U001 item;
     FSeek(pos);
-} Root_Item <read=(ReadString_(name))>;
+} StateElement <read=(ReadString_(name))>;
 
 uint32 count;
-Root_Item items[count] <optimize=false>;
+StateElement items[count] <optimize=false>;
