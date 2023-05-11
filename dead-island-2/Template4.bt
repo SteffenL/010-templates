@@ -1,0 +1,234 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    int32 length;
+    if (length > 0) {
+        char data[length] <optimize=false>;
+    } /*else if (length < 0) {
+        wchar_t data[-length] <optimize=false>;
+    }*/
+} String <read=ReadString_>;
+
+// FNameEntrySerialized also has some hash stuff at the end
+
+string ReadString_(String& from) {
+    local string to;
+    if (from.length > 0) {
+        Strncpy(to, from.data, from.length);
+    } else {
+        to = "";
+    }
+    return to;
+}
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        byte data[length] <optimize=false>;
+    }
+} Data;
+
+struct Guid {
+    byte data[16];
+};
+
+struct SoftObjectPath {
+    String value;
+};
+
+// Engine/Source/Runtime/CoreUObject/Public/UObject/PropertyTag.h
+// Engine/Source/Runtime/CoreUObject/Private/UObject/PropertyTag.cpp
+struct PropertyTag {
+    String name;
+    local string name_str = ReadString_(name);
+    if (name_str == "None") {
+        return;
+    }
+    String type;
+    int32 size;
+    /*if (size == 0) {
+        return;
+    }*/
+    int32 array_index;
+    local string type_str = ReadString_(type);
+
+    // present if Tag.Type.GetNumber() == 0
+    if (type_str == "StructProperty") {
+        String struct_name;
+        // struct_guid is present if Version >= VER_UE4_STRUCT_GUID_IN_PROPERTY_TAG
+        Guid struct_guid;
+    } else if (type_str == "BoolProperty") {
+        byte bool_val;
+    } else if (type_str == "ByteProperty" || type_str == "EnumProperty") {
+        String enum_name;
+    } else if (type_str == "ArrayProperty") {
+        // present if Version >= VAR_UE4_ARRAY_PROPERTY_INNER_TAGS
+        String inner_type;
+    } else {
+        // present if Version >= VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
+        if (type_str == "SetProperty") {
+            String inner_type;
+        } else if (type_str == "MapProperty") {
+            String inner_type;
+            String value_type;
+        }
+    }
+
+    // present if Version >= VER_UE4_PROPERTY_GUID_IN_PROPERTY_TAG
+    byte has_property_guid;
+    if (has_property_guid) {
+        Guid property_guid;
+    }
+};
+
+struct TaggedProperties {
+    local byte foundNone = 0;
+    while (!foundNone) {
+        struct {
+            PropertyTag tag;
+            local string name_str = ReadString_(tag.name);
+            if (name_str == "None") {
+                foundNone = 1;
+                return;
+            }
+            local string type_str = ReadString_(tag.type);
+            if (type_str == "BoolProperty") {
+                // Set the property's value from the tag for booleans
+            } else {
+                local int64 data_start_pos = FTell();
+                byte propertyBytes[tag.size];
+                FSeek(data_start_pos);
+                //Property property(tag);
+                FSeek(data_start_pos + tag.size);
+            }
+        } items;
+    }
+};
+
+struct UObject {
+    // ScriptProperties
+};
+
+struct UField {
+    UObject super;
+};
+
+struct UProperty {
+    UField super;
+	//int32 ArrayDim;
+	//int32 PropertyFlags;
+    //String RepNotifyFunc;
+	//int32			ElementSize;
+	//uint16			RepIndex;
+    
+};
+
+struct UStruct {
+    UField super;
+};
+
+struct UClass {
+    UStruct super;
+};
+
+
+struct UScriptStruct {
+    UStruct super;
+    uint32 struct_flags;
+    TaggedProperties tagged_properties;
+};
+
+struct UStructProperty {
+    UProperty super;
+    UScriptStruct script_struct;
+};
+
+struct {
+    UStructProperty property;
+} p;
+
+/*struct Property;
+
+struct Property(const PropertyTag& t) {
+    local string name = ReadString_(tag.name);
+    local string type = ReadString_(tag.type);
+    if (type == "IntProperty") {
+        int32 value;
+    } else if (type == "ArrayProperty") {
+        local string inner_type = ReadString_(tag.inner_type);
+        if (inner_type == "StructProperty") {
+            if (name == "InstancedItems") {
+                struct {
+                    uint32 u001;
+                    PropertyTag u002;
+                    struct {
+                        // Tagged properties
+                        local byte foundNone = 0;
+                        while (!foundNone) {
+                            struct {
+                                PropertyTag tag;
+                                local string name_str = ReadString_(tag.name);
+                                if (name_str == "None") {
+                                    foundNone = 1;
+                                    return;
+                                }
+                                local string type_str = ReadString_(tag.type);
+                                if (type_str == "BoolProperty") {
+                                    // Set the property's value from the tag for booleans
+                                } else {
+                                    local int64 data_start_pos = FTell();
+                                    byte propertyBytes[tag.size];
+                                    FSeek(data_start_pos);
+                                    Property property(tag);
+                                    FSeek(data_start_pos + tag.size);
+                                }
+                            } tagged_properties;
+                        }
+                    } u003[u001] <optimize=false>;
+                } instanced_items;
+            } else if (name == "ArchetypeItems" && tag.size == 9010) {
+                struct {
+                    uint32 u001;
+                    PropertyTag u002;
+                    struct {
+                        // Tagged properties
+                        local byte foundNone = 0;
+                        while (!foundNone) {
+                            struct {
+                                PropertyTag tag;
+                                local string name_str = ReadString_(tag.name);
+                                if (name_str == "None") {
+                                    foundNone = 1;
+                                    return;
+                                }
+                                local string type_str = ReadString_(tag.type);
+                                if (type_str == "BoolProperty") {
+                                    // Set the property's value from the tag for booleans
+                                } else {
+                                    local int64 data_start_pos = FTell();
+                                    byte propertyBytes[tag.size];
+                                    FSeek(data_start_pos);
+                                    Property property(tag);
+                                    FSeek(data_start_pos + tag.size);
+                                }
+                            } tagged_troperties;
+                        }
+                    } u003[u001] <optimize=false>;
+                } archetype_items;
+            }
+        }
+    } else {
+        //Printf("[Property] TODO: Property type %s\n", type);
+    }
+};*/

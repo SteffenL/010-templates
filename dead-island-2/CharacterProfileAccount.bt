@@ -101,8 +101,255 @@ struct PropertyTag {
     }
 };
 
-struct Property(const string& type) {
-    Printf("[Property] TODO: Property type %s\n", type);
+struct TaggedProperty;
+struct TaggedProperties;
+struct Property;
+
+struct SoftObjectPath {
+    String path;
+};
+
+struct CharacterArchetype {
+    TaggedProperty archetype;
+};
+
+struct ActiveSkillRecordCollection {
+    TaggedProperty records;
+};
+
+struct ObjectProperty {
+    String property_class;
+    TaggedProperty property;
+};
+
+struct EnumProperty {
+    String value;
+};
+
+struct StrProperty {
+    String value;
+};
+
+struct NameProperty {
+    String value;
+};
+
+struct UInt32Property {
+    uint32 value;
+};
+
+struct FloatProperty {
+    float value;
+};
+
+struct InventoryItemInstanced {
+    TaggedProperty entry_id;
+    TaggedProperty archetype;
+    uint32 u001;
+    TaggedProperties tagged_properties;
+    /*TaggedProperty procedural_generation_context;
+    TaggedProperty procedural_generation_definition;
+    TaggedProperty required_level;
+    TaggedProperty none;
+    TaggedProperty unique_id;
+    TaggedProperty runtime_state;*/
+};
+
+struct ProceduralGenerationContext {
+    TaggedProperty seed;
+};
+
+struct ArrayProperty (const string& inner_type) {
+    uint32 count;
+    if (inner_type == "StructProperty") {
+        PropertyTag tag;
+        Property items(tag)[count] <optimize=false>;
+    } else if (inner_type == "StrProperty") {
+        StrProperty items[count] <optimize=false>;
+    } else if (inner_type == "UInt32Property") {
+        UInt32Property items[count] <optimize=false>;
+    } else {
+        Printf("Unhandler array property inner type: %s\n", inner_type);
+        //Assert(0, Str("Unhandler array property inner type: %s", inner_type));
+    }
+};
+
+struct SetProperty (const string& inner_type) {
+    uint32 u001;
+    uint32 count;
+    if (inner_type == "StructProperty") {
+        PropertyTag tag;
+        Property items(tag)[count] <optimize=false>;
+    } else if (inner_type == "StrProperty") {
+        StrProperty items[count] <optimize=false>;
+    } else if (inner_type == "UInt32Property") {
+        UInt32Property items[count] <optimize=false>;
+    } else if (inner_type == "EnumProperty") {
+        EnumProperty items[count] <optimize=false>;
+    } else {
+        Assert(0, Str("Unhandler set property inner type: %s", inner_type));
+    }
+};
+
+struct MapProperty (const PropertyTag& tag) {
+    //local string key_type = ReadString_(tag.inner_type);
+    //local string value_type = ReadString_(tag.value_type);
+    //String key_type;
+    //String value_type;
+
+    if (key_type == "StructProperty") {
+        PropertyTag tag;
+        Property items(tag)[count] <optimize=false>;
+    } else if (key_type == "StrProperty") {
+        StrProperty items[count] <optimize=false>;
+    } else if (key_type == "UInt32Property") {
+        UInt32Property items[count] <optimize=false>;
+    } else if (key_type == "EnumProperty") {
+        EnumProperty items[count] <optimize=false>;
+    } else {
+        Assert(0, Str("Unhandler map key type: %s", key_type));
+    }
+
+    if (value_type == "StructProperty") {
+        PropertyTag tag;
+        Property items(tag)[count] <optimize=false>;
+    } else if (value_type == "StrProperty") {
+        StrProperty items[count] <optimize=false>;
+    } else if (value_type == "UInt32Property") {
+        UInt32Property items[count] <optimize=false>;
+    } else if (value_type == "EnumProperty") {
+        EnumProperty items[count] <optimize=false>;
+    } else {
+        Assert(0, Str("Unhandler map value type: %s", key_type));
+    }
+
+
+    //Property key(key_type);
+    //Property value(value_type);
+    //Assert(u001 == 0 && u002 == 0);
+    Assert(0);
+};
+
+struct TaggedProperty {
+    PropertyTag tag;
+    Property property(tag);
+};
+
+struct PropertyItem (const PropertyTag& tag) {
+    local string type = ReadString_(tag.type);
+    if (type == "IntProperty") {
+        int32 value;
+    } else if (type == "FloatProperty") {
+        float value;
+    } else if (type == "StructProperty") {
+        local string struct_name = ReadString_(tag.struct_name);
+        if (struct_name == "Guid") {
+            Guid struct_data;
+        } else if (struct_name == "SoftObjectPath") {
+            SoftObjectPath struct_data;
+        } else if (struct_name == "ProceduralGenerationContext") {
+            ProceduralGenerationContext struct_data;
+        } else if (struct_name == "CharacterArchetype") {
+            CharacterArchetype struct_data;
+        } else if (struct_name == "ActiveSkillRecordCollection") {
+            ActiveSkillRecordCollection struct_data;
+        } else if (struct_name == "InventoryItemInstanced") {
+            InventoryItemInstanced struct_data;
+        } else if (struct_name == "ProceduralGenerationContext") {
+            ProceduralGenerationContext struct_data;
+        } else {
+            Printf("Unhandled struct type: %s\n", struct_name);
+            //Assert(0, Str("Unhandled struct type: %s", struct_name));
+        }
+    } else if (type == "ArrayProperty") {
+        local string inner_type = ReadString_(tag.inner_type);
+        ArrayProperty value(inner_type);
+        /*if (inner_type == "StructProperty") {
+            if (name == "InstancedItems") {
+                struct {
+                    uint32 u001;
+                    PropertyTag u002;
+                    struct {
+                        // Tagged properties
+                        local byte foundNone = 0;
+                        while (!foundNone) {
+                            struct {
+                                PropertyTag tag;
+                                local string name_str = ReadString_(tag.name);
+                                if (name_str == "None") {
+                                    foundNone = 1;
+                                    return;
+                                }
+                                local string type_str = ReadString_(tag.type);
+                                if (type_str == "BoolProperty") {
+                                    // Set the property's value from the tag for booleans
+                                } else {
+                                    local int64 data_start_pos = FTell();
+                                    byte propertyBytes[tag.size];
+                                    FSeek(data_start_pos);
+                                    Property property(tag);
+                                    FSeek(data_start_pos + tag.size);
+                                }
+                            } tagged_properties;
+                        }
+                    } u003[u001] <optimize=false>;
+                } instanced_items;
+            } else if (name == "ArchetypeItems" && tag.size == 9010) {
+                struct {
+                    uint32 u001;
+                    PropertyTag u002;
+                    struct {
+                        // Tagged properties
+                        local byte foundNone = 0;
+                        while (!foundNone) {
+                            struct {
+                                PropertyTag tag;
+                                local string name_str = ReadString_(tag.name);
+                                if (name_str == "None") {
+                                    foundNone = 1;
+                                    return;
+                                }
+                                local string type_str = ReadString_(tag.type);
+                                if (type_str == "BoolProperty") {
+                                    // Set the property's value from the tag for booleans
+                                } else {
+                                    local int64 data_start_pos = FTell();
+                                    byte propertyBytes[tag.size];
+                                    FSeek(data_start_pos);
+                                    Property property(tag);
+                                    FSeek(data_start_pos + tag.size);
+                                }
+                            } tagged_troperties;
+                        }
+                    } u003[u001] <optimize=false>;
+                } archetype_items;
+            }
+        }*/
+    } else if (type == "ObjectProperty") {
+        ObjectProperty value;
+    } else if (type == "EnumProperty") {
+        EnumProperty value;
+    } else if (type == "SetProperty") {
+        local string inner_type = ReadString_(tag.inner_type);
+        SetProperty value(inner_type);
+    } else if (type == "StrProperty") {
+        StrProperty value;
+    } else if (type == "NameProperty") {
+        NameProperty value;
+    } else if (type == "MapProperty") {
+    //    MapProperty value(tag);
+    } else {
+        //Printf("[Property] TODO: Property type %s\n", type);
+        Assert(0, Str("Unhandled property type %s", type));
+    }
+};
+
+struct Property (const PropertyTag& tag) {
+    local string name = ReadString_(tag.name);
+    if (name == "None") {
+        return;
+    }
+    PropertyItem property(tag);
 };
 
 enum VariantType {
@@ -167,7 +414,7 @@ struct Variant {
             int32 value;
             break;
         default:
-            Assert(0, Str("Unknown variant type %d", type));
+            //Assert(0, Str("Unknown variant type %d", type));
             break;
     }
     FSeek(pos);
@@ -193,12 +440,7 @@ struct StringToInt32PairArray {
     }
 };
 
-typedef struct {
-    String name;
-    String package_name;
-
-    uint32 u001;
-
+struct TaggedProperties {
     // Tagged properties
     local byte foundNone = 0;
     while (!foundNone) {
@@ -214,12 +456,22 @@ typedef struct {
                 // Set the property's value from the tag for booleans
             } else {
                 local int64 data_start_pos = FTell();
-                Property taggedProperty(type_str);
+                byte propertyBytes[tag.size];
                 FSeek(data_start_pos);
-                byte taggedPropertyBytes[tag.size];
+                Property property(tag);
+                FSeek(data_start_pos + tag.size);
             }
-        } taggedProperties;
+        } tagged_properties;
     }
+};
+
+typedef struct {
+    String name;
+    String package_name;
+
+    uint32 u001;
+
+    TaggedProperties tagged_properties;
 
     uint32 u003;
 
@@ -249,7 +501,7 @@ typedef struct {
         } script_data;
     } else if (package_name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
         struct {
-            StringToInt32PairArray u001;
+            StringToInt32PairArray items;
         } script_data;
     } else if (package_name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
         struct {
@@ -267,7 +519,7 @@ typedef struct {
             StringToVariantPairArray items;
         } script_data;
     } else {
-        Printf("[U004] TODO: Script %s\n", package_name_str);
+        //Printf("[U004] TODO: Script %s\n", package_name_str);
     }
 } U002 <read=(ReadString_(name))>;
 
@@ -278,7 +530,6 @@ typedef struct (byte root) {
         Data raw;
         local int64 pos = FTell();
         FSkip(-raw.length);
-        local string name_str = ReadString_(name);
     }
     uint32 items_2_count;
     struct {
