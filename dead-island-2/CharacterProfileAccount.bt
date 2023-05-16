@@ -128,7 +128,6 @@ struct ActiveSkillRecordCollection {
 
 struct ObjectProperty {
     String property_class;
-    //TaggedProperty property;
 };
 
 struct EnumProperty {
@@ -175,17 +174,11 @@ struct ArrayProperty (const string& inner_type) {
         local int64 value_start_pos = FTell();
         byte value_data[tag.size];
         FSeek(value_start_pos);
-        Property items(tag)[count] <optimize=false>;
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name)[count] <optimize=false>;;
         FSeek(value_start_pos + tag.size);
-    } else if (inner_type == "StrProperty") {
-        StrProperty items[count] <optimize=false>;
-    } else if (inner_type == "NameProperty") {
-        NameProperty items[count] <optimize=false>;
-    } else if (inner_type == "UInt32Property") {
-        UInt32Property items[count] <optimize=false>;
     } else {
-        Printf("Unhandled array property inner type: %s\n", inner_type);
-        //Assert(0, Str("Unhandler array property inner type: %s", inner_type));
+        PropertyItemSimple value(inner_type)[count] <optimize=false>;;
     }
 };
 
@@ -194,15 +187,14 @@ struct SetProperty (const string& inner_type) {
     uint32 count;
     if (inner_type == "StructProperty") {
         PropertyTag tag;
-        Property items(tag)[count] <optimize=false>;
-    } else if (inner_type == "StrProperty") {
-        StrProperty items[count] <optimize=false>;
-    } else if (inner_type == "UInt32Property") {
-        UInt32Property items[count] <optimize=false>;
-    } else if (inner_type == "EnumProperty") {
-        EnumProperty items[count] <optimize=false>;
+        local int64 value_start_pos = FTell();
+        byte value_data[tag.size];
+        FSeek(value_start_pos);
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name)[count] <optimize=false>;;
+        FSeek(value_start_pos + tag.size);
     } else {
-        Assert(0, Str("Unhandled set property inner type: %s", inner_type));
+        PropertyItemSimple value(inner_type)[count] <optimize=false>;;
     }
 };
 
@@ -395,7 +387,6 @@ struct StringToInt32PairArray {
 };
 
 struct TaggedProperties {
-    // Tagged properties
     local byte foundNone = 0;
     while (!foundNone) {
         struct {
