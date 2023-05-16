@@ -109,6 +109,7 @@ struct TaggedProperty;
 struct TaggedProperties;
 struct Property;
 struct PropertyItem;
+struct Variant;
 
 struct SoftObjectPath {
     String asset_path_name;
@@ -154,13 +155,6 @@ struct FloatProperty {
 
 struct InventoryItemInstanced {
     TaggedProperties tagged_properties;
-    //Assert(0);
-    /*TaggedProperty procedural_generation_context;
-    TaggedProperty procedural_generation_definition;
-    TaggedProperty required_level;
-    TaggedProperty none;
-    TaggedProperty unique_id;
-    TaggedProperty runtime_state;*/
 };
 
 struct ProceduralGenerationContext {
@@ -168,32 +162,8 @@ struct ProceduralGenerationContext {
 };
 
 struct InventoryPersistentStateEntry {
-    uint32 u001;
-    uint32 u002;
-    uint32 u003;
-    String u004;
-    uint32 u006;
-    uint32 u007;
-    uint32 u008;
-
-    String u009;
-    uint32 u010;
-    uint32 u011_size;
-    String u011_data;
-
-    //String none;
-    //TaggedProperty upgrade_entry_0;
-    /*TaggedProperty entry_id;
-    TaggedProperty archetype;
-    uint32 u12;
-    TaggedProperty procedural_generation_context;
-    TaggedProperty procedural_generation_definition;
-    TaggedProperty required_level;
-    TaggedProperty none;
-    TaggedProperty unique_id;
-    TaggedProperty runtime_state;*/
-    //TaggedProperties tagged_properties;*/
-    //Assert(0);
+    String key;
+    Variant value;
 };
 
 struct ArrayProperty (const string& inner_type) {
@@ -207,6 +177,8 @@ struct ArrayProperty (const string& inner_type) {
         FSeek(value_start_pos + tag.size);
     } else if (inner_type == "StrProperty") {
         StrProperty items[count] <optimize=false>;
+    } else if (inner_type == "NameProperty") {
+        NameProperty items[count] <optimize=false>;
     } else if (inner_type == "UInt32Property") {
         UInt32Property items[count] <optimize=false>;
     } else {
@@ -236,7 +208,14 @@ struct MapProperty (const PropertyTag& tag) {
     local string key_type = ReadString_(tag.inner_type);
     local string value_type = ReadString_(tag.value_type);
 
-    if (key_type == "UInt32Property" && value_type == "IntProperty") {
+    if (key_type == "StrProperty" && value_type == "EnumProperty") {
+        uint32 u001;
+        uint32 count;
+        struct {
+            StrProperty key;
+            EnumProperty value;
+        } items[count] <optimize=false>;
+    } else if (key_type == "UInt32Property" && value_type == "IntProperty") {
         uint32 u001;
         uint32 count;
         struct {
@@ -244,8 +223,13 @@ struct MapProperty (const PropertyTag& tag) {
             IntProperty value;
         } items[count] <optimize=false>;
     } else if (key_type == "StrProperty" && value_type == "StructProperty") {
-    } else if (tag.size > 8 && tag.size != 100) {
-        Assert(0);
+        PropertyTag t;
+        local int64 value_start_pos = FTell();
+        byte value_data[t.size];
+        FSeek(value_start_pos);
+        uint32 u001;
+        uint32 count;
+        PropertyItem items(t)[count] <optimize=false>;
     }
 
 
