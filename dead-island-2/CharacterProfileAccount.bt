@@ -109,6 +109,8 @@ struct TaggedProperty;
 struct TaggedProperties;
 struct Property;
 struct PropertyItem;
+struct PropertyItemSimple;
+struct PropertyItemStruct;
 struct Variant;
 
 struct SoftObjectPath {
@@ -208,79 +210,23 @@ struct MapProperty (const PropertyTag& tag) {
     local string key_type = ReadString_(tag.inner_type);
     local string value_type = ReadString_(tag.value_type);
 
-    if (key_type == "StrProperty" && value_type == "EnumProperty") {
+    Assert(key_type != "StructProperty" || value_type != "StructProperty", "TODO: MapProperty with StructProperty as both key and value");
+    if (key_type == "StructProperty" || value_type == "StructProperty") {
+        PropertyTag inner_tag;
+        local int64 inner_data_start_pos = FTell();
+        byte inner_data[inner_tag.size];
+        FSeek(inner_data_start_pos);
+        uint32 u001;
+        uint32 count;
+        PropertyItem items(inner_tag)[count] <optimize=false>;
+    } else {
         uint32 u001;
         uint32 count;
         struct {
-            StrProperty key;
-            EnumProperty value;
+            PropertyItemSimple key(key_type);
+            PropertyItemSimple key(value_type);
         } items[count] <optimize=false>;
-    } else if (key_type == "UInt32Property" && value_type == "IntProperty") {
-        uint32 u001;
-        uint32 count;
-        struct {
-            UInt32Property key;
-            IntProperty value;
-        } items[count] <optimize=false>;
-    } else if (key_type == "StrProperty" && value_type == "StructProperty") {
-        PropertyTag t;
-        local int64 value_start_pos = FTell();
-        byte value_data[t.size];
-        FSeek(value_start_pos);
-        uint32 u001;
-        uint32 count;
-        PropertyItem items(t)[count] <optimize=false>;
     }
-
-
-    /*if (key_type == "StructProperty") {
-        PropertyTag key_tag;
-    }
-
-    if (value_type == "StructProperty") {
-        PropertyTag value_tag;
-        byte value_data[value_tag.size] <optimize=false>;
-        FSkip(-value_tag.size);
-    }
-
-    uint32 u001;
-    uint32 count;
-    
-    struct {
-        if (key_type == "StructProperty") {
-            PropertyItem key(key_tag);
-        } else if (key_type == "StrProperty") {
-            StrProperty key;
-        } else if (key_type == "UInt32Property") {
-            UInt32Property key;
-        } else if (key_type == "IntProperty") {
-            IntProperty key;
-        } else if (key_type == "EnumProperty") {
-            EnumProperty key;
-        } else {
-            Assert(0, Str("Unhandled map key type: %s", key_type));
-        }
-    
-        if (value_type == "StructProperty") {
-            PropertyItem value(value_tag);
-        } else if (value_type == "StrProperty") {
-            StrProperty value;
-        } else if (value_type == "UInt32Property") {
-            UInt32Property value;
-        } else if (value_type == "IntProperty") {
-            IntProperty value;
-        } else if (value_type == "EnumProperty") {
-            EnumProperty value;
-        } else if (value_type == "MapProperty") {
-            ///MapProperty value(value_tag);
-            uint32 u001;
-            uint32 u002;
-            String u003;
-            Assert(0);
-        } else {
-            Assert(0, Str("Unhandled map value type: %s", value_type));
-        }
-    } items[count] <optimize=false>;*/
 };
 
 struct TaggedProperty {
@@ -288,98 +234,18 @@ struct TaggedProperty {
     Property property(tag);
 };
 
-struct PropertyItem (const PropertyTag& tag) {
-    local string type = ReadString_(tag.type);
+struct PropertyItemSimple (const string& type) {
     if (type == "IntProperty") {
-        int32 value;
+        IntProperty value;
+    } else if (type == "UInt32Property") {
+        UInt32Property value;
     } else if (type == "FloatProperty") {
         float value;
     } else if (type == "StructProperty") {
-        local string struct_name = ReadString_(tag.struct_name);
-        if (struct_name == "Guid") {
-            Guid struct_data;
-        } else if (struct_name == "SoftObjectPath") {
-            SoftObjectPath struct_data;
-        } else if (struct_name == "ProceduralGenerationContext") {
-            ProceduralGenerationContext struct_data;
-        } else if (struct_name == "CharacterArchetype") {
-            CharacterArchetype struct_data;
-        } else if (struct_name == "ActiveSkillRecordCollection") {
-            ActiveSkillRecordCollection struct_data;
-        } else if (struct_name == "InventoryItemInstanced") {
-            InventoryItemInstanced struct_data;
-        } else if (struct_name == "ProceduralGenerationContext") {
-            ProceduralGenerationContext struct_data;
-        } else if (struct_name == "InventoryPersistentStateEntry") {
-            InventoryPersistentStateEntry struct_data;
-        } else {
-            Printf("Unhandled struct type: %s\n", struct_name);
-            //Assert(0, Str("Unhandled struct type: %s", struct_name));
-        }
+        Assert(0, Str("Invalid type: %s", type));
     } else if (type == "ArrayProperty") {
         local string inner_type = ReadString_(tag.inner_type);
         ArrayProperty value(inner_type);
-        /*if (inner_type == "StructProperty") {
-            if (name == "InstancedItems") {
-                struct {
-                    uint32 u001;
-                    PropertyTag u002;
-                    struct {
-                        // Tagged properties
-                        local byte foundNone = 0;
-                        while (!foundNone) {
-                            struct {
-                                PropertyTag tag;
-                                local string name_str = ReadString_(tag.name);
-                                if (name_str == "None") {
-                                    foundNone = 1;
-                                    return;
-                                }
-                                local string type_str = ReadString_(tag.type);
-                                if (type_str == "BoolProperty") {
-                                    // Set the property's value from the tag for booleans
-                                } else {
-                                    local int64 data_start_pos = FTell();
-                                    byte propertyBytes[tag.size];
-                                    FSeek(data_start_pos);
-                                    Property property(tag);
-                                    FSeek(data_start_pos + tag.size);
-                                }
-                            } tagged_properties;
-                        }
-                    } u003[u001] <optimize=false>;
-                } instanced_items;
-            } else if (name == "ArchetypeItems" && tag.size == 9010) {
-                struct {
-                    uint32 u001;
-                    PropertyTag u002;
-                    struct {
-                        // Tagged properties
-                        local byte foundNone = 0;
-                        while (!foundNone) {
-                            struct {
-                                PropertyTag tag;
-                                local string name_str = ReadString_(tag.name);
-                                if (name_str == "None") {
-                                    foundNone = 1;
-                                    return;
-                                }
-                                local string type_str = ReadString_(tag.type);
-                                if (type_str == "BoolProperty") {
-                                    // Set the property's value from the tag for booleans
-                                } else {
-                                    local int64 data_start_pos = FTell();
-                                    byte propertyBytes[tag.size];
-                                    FSeek(data_start_pos);
-                                    Property property(tag);
-                                    FSeek(data_start_pos + tag.size);
-                                }
-                            } tagged_troperties;
-                        }
-                    } u003[u001] <optimize=false>;
-                } archetype_items;
-            }
-        }*/
     } else if (type == "ObjectProperty") {
         ObjectProperty value;
     } else if (type == "EnumProperty") {
@@ -396,6 +262,39 @@ struct PropertyItem (const PropertyTag& tag) {
     } else {
         //Printf("[Property] TODO: Property type %s\n", type);
         Assert(0, Str("Unhandled property type %s", type));
+    }
+};
+
+struct PropertyItemStruct (const string& struct_name) {
+    if (struct_name == "Guid") {
+        Guid struct_data;
+    } else if (struct_name == "SoftObjectPath") {
+        SoftObjectPath struct_data;
+    } else if (struct_name == "ProceduralGenerationContext") {
+        ProceduralGenerationContext struct_data;
+    } else if (struct_name == "CharacterArchetype") {
+        CharacterArchetype struct_data;
+    } else if (struct_name == "ActiveSkillRecordCollection") {
+        ActiveSkillRecordCollection struct_data;
+    } else if (struct_name == "InventoryItemInstanced") {
+        InventoryItemInstanced struct_data;
+    } else if (struct_name == "ProceduralGenerationContext") {
+        ProceduralGenerationContext struct_data;
+    } else if (struct_name == "InventoryPersistentStateEntry") {
+        InventoryPersistentStateEntry struct_data;
+    } else {
+        Printf("Unhandled struct type: %s\n", struct_name);
+        //Assert(0, Str("Unhandled struct type: %s", struct_name));
+    }
+};
+
+struct PropertyItem (const PropertyTag& tag) {
+    local string type = ReadString_(tag.type);
+    if (type == "StructProperty") {
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name);
+    } else {
+        PropertyItemSimple value(type);
     }
 };
 
