@@ -126,7 +126,7 @@ struct ActiveSkillRecordCollection {
 
 struct ObjectProperty {
     String property_class;
-    TaggedProperty property;
+    //TaggedProperty property;
 };
 
 struct EnumProperty {
@@ -158,7 +158,7 @@ struct InventoryItemInstanced {
 };
 
 struct ProceduralGenerationContext {
-    TaggedProperty seed;
+    TaggedProperties tagged_properties;
 };
 
 struct InventoryPersistentStateEntry {
