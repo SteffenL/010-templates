@@ -111,7 +111,8 @@ struct Property;
 struct PropertyItem;
 
 struct SoftObjectPath {
-    String path;
+    String asset_path_name;
+    String sub_path_string;
 };
 
 struct CharacterArchetype {
@@ -152,9 +153,6 @@ struct FloatProperty {
 };
 
 struct InventoryItemInstanced {
-    TaggedProperty entry_id;
-    TaggedProperty archetype;
-    uint32 u001;
     TaggedProperties tagged_properties;
     //Assert(0);
     /*TaggedProperty procedural_generation_context;
@@ -237,6 +235,19 @@ struct SetProperty (const string& inner_type) {
 struct MapProperty (const PropertyTag& tag) {
     local string key_type = ReadString_(tag.inner_type);
     local string value_type = ReadString_(tag.value_type);
+
+    if (key_type == "UInt32Property" && value_type == "IntProperty") {
+        uint32 u001;
+        uint32 count;
+        struct {
+            UInt32Property key;
+            IntProperty value;
+        } items[count] <optimize=false>;
+    } else if (key_type == "StrProperty" && value_type == "StructProperty") {
+    } else if (tag.size > 8 && tag.size != 100) {
+        Assert(0);
+    }
+
 
     /*if (key_type == "StructProperty") {
         PropertyTag key_tag;
