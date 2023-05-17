@@ -130,6 +130,11 @@ struct ObjectProperty {
     String property_class;
 };
 
+struct SoftObjectProperty {
+    String u001;
+    String u002;
+};
+
 struct EnumProperty {
     String value;
 };
@@ -163,8 +168,18 @@ struct ProceduralGenerationContext {
 };
 
 struct InventoryPersistentStateEntry {
-    String key;
+    //String key;
     Variant value;
+};
+
+struct TutorialState {
+    TaggedProperties tagged_properties;
+};
+
+struct Vector {
+    float x;
+    float y;
+    float z;
 };
 
 struct ArrayProperty (const string& inner_type) {
@@ -204,13 +219,32 @@ struct MapProperty (const PropertyTag& tag) {
 
     Assert(key_type != "StructProperty" || value_type != "StructProperty", "TODO: MapProperty with StructProperty as both key and value");
     if (key_type == "StructProperty" || value_type == "StructProperty") {
-        PropertyTag inner_tag;
-        local int64 inner_data_start_pos = FTell();
-        byte inner_data[inner_tag.size];
-        FSeek(inner_data_start_pos);
+        if (key_type == "StructProperty") {
+            PropertyTag key_tag;
+        }
+
+        if (value_type == "StructProperty") {
+            PropertyTag value_tag;
+        }
+
         uint32 u001;
         uint32 count;
-        PropertyItem items(inner_tag)[count] <optimize=false>;
+
+        struct {
+            if (key_type == "StructProperty") {
+                //byte key_data[key_tag.size];
+                PropertyItem key(key_tag);
+            } else {
+                PropertyItemSimple key(key_type);
+            }
+
+            if (value_type == "StructProperty") {
+                //byte value_data[value_tag.size];
+                PropertyItem value(value_tag);
+            } else {
+                PropertyItemSimple value(value_type);
+            }
+        } items[count] <optimize=false>;
     } else {
         uint32 u001;
         uint32 count;
@@ -232,7 +266,9 @@ struct PropertyItemSimple (const string& type) {
     } else if (type == "UInt32Property") {
         UInt32Property value;
     } else if (type == "FloatProperty") {
-        float value;
+        FloatProperty value;
+    } else if (type == "ByteProperty") {
+        byte value;
     } else if (type == "StructProperty") {
         Assert(0, Str("Invalid type: %s", type));
     } else if (type == "ArrayProperty") {
@@ -251,6 +287,8 @@ struct PropertyItemSimple (const string& type) {
         NameProperty value;
     } else if (type == "MapProperty") {
         MapProperty value(tag);
+    } else if (type == "SoftObjectProperty") {
+        SoftObjectProperty value;
     } else {
         //Printf("[Property] TODO: Property type %s\n", type);
         Assert(0, Str("Unhandled property type %s", type));
@@ -274,8 +312,15 @@ struct PropertyItemStruct (const string& struct_name) {
         ProceduralGenerationContext struct_data;
     } else if (struct_name == "InventoryPersistentStateEntry") {
         InventoryPersistentStateEntry struct_data;
+    } else if (struct_name == "TutorialState") {
+        TutorialState struct_data;
+    } else if (struct_name == "Vector") {
+        Vector struct_data;
     } else {
         Printf("Unhandled struct type: %s\n", struct_name);
+        struct {
+            TaggedProperties tagged_properties;
+        } placeholder_struct_data;
         //Assert(0, Str("Unhandled struct type: %s", struct_name));
     }
 };
