@@ -119,11 +119,11 @@ struct SoftObjectPath {
 };
 
 struct CharacterArchetype {
-    TaggedProperty archetype;
+    TaggedProperties tagged_properties;
 };
 
 struct ActiveSkillRecordCollection {
-    TaggedProperty records;
+    TaggedProperties tagged_properties;
 };
 
 struct ObjectProperty {
@@ -131,8 +131,7 @@ struct ObjectProperty {
 };
 
 struct SoftObjectProperty {
-    String u001;
-    String u002;
+    SoftObjectPath path;
 };
 
 struct EnumProperty {
@@ -217,42 +216,32 @@ struct MapProperty (const PropertyTag& tag) {
     local string key_type = ReadString_(tag.inner_type);
     local string value_type = ReadString_(tag.value_type);
 
-    Assert(key_type != "StructProperty" || value_type != "StructProperty", "TODO: MapProperty with StructProperty as both key and value");
-    if (key_type == "StructProperty" || value_type == "StructProperty") {
+    if (key_type == "StructProperty") {
+        PropertyTag key_tag;
+    }
+
+    if (value_type == "StructProperty") {
+        PropertyTag value_tag;
+    }
+
+    uint32 u001;
+    uint32 count;
+
+    struct {
         if (key_type == "StructProperty") {
-            PropertyTag key_tag;
+            //byte key_data[key_tag.size];
+            PropertyItem key(key_tag);
+        } else {
+            PropertyItemSimple key(key_type);
         }
 
         if (value_type == "StructProperty") {
-            PropertyTag value_tag;
+            //byte value_data[value_tag.size];
+            PropertyItem value(value_tag);
+        } else {
+            PropertyItemSimple value(value_type);
         }
-
-        uint32 u001;
-        uint32 count;
-
-        struct {
-            if (key_type == "StructProperty") {
-                //byte key_data[key_tag.size];
-                PropertyItem key(key_tag);
-            } else {
-                PropertyItemSimple key(key_type);
-            }
-
-            if (value_type == "StructProperty") {
-                //byte value_data[value_tag.size];
-                PropertyItem value(value_tag);
-            } else {
-                PropertyItemSimple value(value_type);
-            }
-        } items[count] <optimize=false>;
-    } else {
-        uint32 u001;
-        uint32 count;
-        struct {
-            PropertyItemSimple key(key_type);
-            PropertyItemSimple key(value_type);
-        } items[count] <optimize=false>;
-    }
+    } items[count] <optimize=false>;
 };
 
 struct TaggedProperty {
@@ -389,8 +378,8 @@ enum VariantType {
 struct Variant {
     VariantType type;
     Data value_bytes;
-    local int64 pos = FTell();
     FSkip(-value_bytes.length);
+    local int64 value_offset = FTell();
     switch (type) {
         case VariantType_Bool:
             int32 value; // Why is this 4 bytes instead of 1 byte?
@@ -405,10 +394,16 @@ struct Variant {
             int32 value;
             break;
         default:
-            //Assert(0, Str("Unknown variant type %d", type));
+            Assert(0, Str("Unknown variant type %d", type));
             break;
     }
-    FSeek(pos);
+    // This is rather odd, isn't it? Dead Island 2 may have additional data after a null-terminated string.
+    local int64 amount_read = FTell() - value_offset;
+    if (amount_read < value_bytes.length) {
+        local int64 extra_data_size = value_bytes.length - amount_read;
+        Printf("Reading variant type (%d) with %d extra bytes at offset %d\n", type, extra_data_size, value_offset);
+        byte extra_data[extra_data_size];
+    }
 };
 
 struct StringToVariantPairArray {
