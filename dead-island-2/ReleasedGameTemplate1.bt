@@ -38,4 +38,4 @@ while (ReadUInt() != 0x5A13FC42) {
     chunk_header_t chunk_header <optimize=false>;
 }
 uint32 unknown2; // not affected by checksum
-char maybe_hash[8];
+char hash[8];
