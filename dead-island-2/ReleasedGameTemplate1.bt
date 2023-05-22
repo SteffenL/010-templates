@@ -12,15 +12,14 @@
 //------------------------------------------------
 
 struct file_header_t {
-    /*uint32 a;
-    uint16 d;
-    uint16 e;
-    uint32 f;*/
-    /*uint32 compression_length;
-    char compression[compression_length] <optimize=false>;*/
+    // Appears to always be 0x100286 for PC saves, 0xFF5BF for PS4 saves.
     uint32 u001; // not affected by checksum
+    // The value 0x3000A has been observed for PC and PS4 saves.
     uint32 version; // not affected by checksum
-    uint32 maybe_size_of_decompressed_file; // verification fails if this changes
+    // Appears to always be 0x510ED901.
+    // Game fails to load save if this changes.
+    // TODO: Affected by checksum?
+    uint32 u002;
 };
 
 
@@ -37,5 +36,6 @@ char compression[compression_length] <optimize=false>; // not affected by checks
 while (ReadUInt() != 0x5A13FC42) {
     chunk_header_t chunk_header <optimize=false>;
 }
+// Appears to always be 0x5A13FC42.
 uint32 unknown2; // not affected by checksum
 char maybe_hash[8];
