@@ -16,22 +16,26 @@ struct file_header_t {
     uint16 d;
     uint16 e;
     uint32 f;*/
-    uint32 compression_length;
-    char compression[compression_length] <optimize=false>;
+    /*uint32 compression_length;
+    char compression[compression_length] <optimize=false>;*/
+    uint32 u001; // not affected by checksum
+    uint32 version; // not affected by checksum
+    uint32 maybe_size_of_decompressed_file; // verification fails if this changes
 };
 
 
 struct chunk_header_t {
-    uint32 compressed_size;
+    uint32 compressed_size; // not affected by checksum
     uint32 decompressed_size;
-    byte compressed_data[compressed_size];
+    byte compressed_data[compressed_size]; // not affected by checksum if compressed data is different but decompressed data is same
 };
 
-char unknown1[12];
+//char unknown1[12];
+file_header_t hader;
 uint32 compression_length;
-char compression[compression_length] <optimize=false>;
+char compression[compression_length] <optimize=false>; // not affected by checksum
 while (ReadUInt() != 0x5A13FC42) {
     chunk_header_t chunk_header <optimize=false>;
 }
-uint32 unknown2;
+uint32 unknown2; // not affected by checksum
 char maybe_hash[8];
