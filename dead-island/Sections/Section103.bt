@@ -1,0 +1,21 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION103_H
+#define SECTION103_H
+
+#include "include/Types.bt"
+
+struct Section103
+{
+    uint32 totalDataSize;
+    char data[totalDataSize];
+};
+
+#endif

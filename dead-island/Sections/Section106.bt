@@ -1,0 +1,19 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION106_H
+#define SECTION106_H
+
+#include "include/Types.bt"
+
+struct Section106
+{
+};
+
+#endif

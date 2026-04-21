@@ -1,0 +1,93 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#include "include/Types.bt"
+#include "Sections/Section101.bt"
+#include "Sections/Section102.bt"
+#include "Sections/Section103.bt"
+#include "Sections/Section104.bt"
+#include "Sections/Section105.bt"
+#include "Sections/Section106.bt"
+
+
+struct FileHeader
+{
+    int32 u1;
+    int32 u2;
+    int32 u3; // Dying Light: compared with 9, 10
+    int32 u4; // Dying Light: compared with 40, 43. Maybe used to decide how many sections are in the file?
+    int32 u5; // Dying Light: compared with 20
+};
+
+struct SectionHeader
+{
+    uint32 Id;
+    uint32 Size;
+};
+
+GameType identifyGameFromFileHeader()
+{
+    if (g_fileHeader.u1 == -1 &&
+        g_fileHeader.u2  == 0 &&
+        g_fileHeader.u3 == 5 &&
+        g_fileHeader.u4 == 4 &&
+        g_fileHeader.u5 == 5)
+    {
+        return GameType_DeadIsland;
+    }
+
+    if (g_fileHeader.u1 == -1 &&
+        g_fileHeader.u2  == 0 &&
+        g_fileHeader.u3 == 5 &&
+        g_fileHeader.u4 == 5 &&
+        g_fileHeader.u5 == 5)
+    {
+        return GameType_Riptide;
+    }
+
+    Assert(false, "Failed to ID file");
+}
+
+
+FileHeader g_fileHeader;
+local GameType g_gameType = identifyGameFromFileHeader();
+
+local char done = false;
+local unsigned int sectionsRead = 0;
+struct {
+    while (!done && !FEof()) {
+        SectionHeader sectionHeader;
+        switch (sectionHeader.Id) {
+        case 101:
+            Section101 Section;
+            break;
+        case 102:
+            Section102 Section;
+            break;
+        case 103:
+            Section103 Section;
+            break;
+        case 104:
+            Section104 Section;
+            break;
+        case 105:
+            Section105 Section;
+            break;
+        /*case 106:
+            Section106 Section;
+            break;*/
+        default:
+            break;
+        }
+    
+        if (++sectionsRead >= 5) {
+            done = true;
+        }
+    }
+} Sections;

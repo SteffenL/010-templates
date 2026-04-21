@@ -1,0 +1,383 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION102_H
+#define SECTION102_H
+
+#include "include/Types.bt"
+
+struct InventoryItem_t
+{
+    String Name;
+    String CraftPlanName;
+
+    int32 AttributesRaw;
+    // 3 bits: Color          = (AttributesRaw & 7)
+    // 7 bits: Required level = (AttributesRaw >> 3) & 0x7f
+    // 
+    int32 Quantity;
+    float Condition;
+    int32 UpgradeLevel;
+};
+
+typedef InventoryItem_t InventoryItem <read=t_ReadInventoryItem>;
+
+string t_ReadInventoryItem(InventoryItem& item)
+{
+    return item.Name.Data;
+}
+
+struct InventoryItemContainer
+{
+    int32 HeaderId;
+    Assert(HeaderId == 1);
+    int32 Count;
+    if (Count > 0) {
+        InventoryItem Items[Count] <optimize=false>;
+    }
+};
+
+struct QuickSlots_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 1);
+    int32 Count;
+    local int i;
+    for (i = 0; i < Count; ++i) {
+        bool unknown001;
+        if (unknown001 == 0) {
+            InventoryItem Item;
+        }
+    }
+
+    int16 unknown001;
+};
+
+struct Ammo_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 2);
+    int32 Ammo1[8];
+    if (g_gameType == GameType_Riptide) {
+        int32 Ammo2[4];
+    }
+};
+
+struct Collectables_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 9);
+    int32 Count;
+    if (Count > 0) {
+        int32 Id[Count];
+    }
+};
+
+struct Start_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 0);
+};
+
+struct AllInventoryItems_t
+{
+    InventoryItemContainer Items1;
+    InventoryItemContainer Items2;
+    InventoryItemContainer Items3;
+};
+
+struct AllInventoryStuff_t
+{
+    AllInventoryItems_t AllInventoryItems;
+    QuickSlots_t Quickslots;
+    Ammo_t Ammo;
+};
+
+struct Tutorial_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 17);
+    local int i, j;
+    local int expectedCount = 10;
+    struct {
+        bool unknown001;
+        bool unknown002;
+        struct {
+            int32 Count;
+            if (Count > 0) {
+                struct {
+                    int16 unknown001;
+                    bool unknown002;
+                    bool unknown003;
+                } unknown001[Count] <optimize=false>;
+            }      
+        } unknown003;
+    } unknown001[expectedCount] <optimize=false>;
+};
+
+struct PlayerState_t
+{
+    int HeaderId;
+    Assert(HeaderId == 3);
+    int16 Level;
+    int32 Xp;
+    int16 unknown003;
+    int16 unknown004;
+    int32 unknown005;
+    int32 unknown006;
+    bool unknown007;
+    bool unknown008;
+};
+
+struct Skills_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 4);
+    int32 Count;
+    if (Count > 0) {
+        struct {
+            int16 Id;
+            int16 Level;
+            int32 unknown001;
+        } Skills[Count] <optimize=false>;
+    }
+};
+
+struct Buffs_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 5);
+    int32 Count;
+    if (Count > 0) {
+        struct {
+            int16 Id;
+            int16 Level;
+        } Buffs[Count] <optimize=false>;
+    }
+};
+
+struct TimedBuffs_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 6);
+    int32 Count;
+    // TODO: Need to test when Count > 0
+    if (Count > 0) {
+        struct {
+            int16 unknown001;
+            int16 unknown002;
+            float unknown003;
+        } TimedBuffs[Count] <optimize=false>;
+    }
+};
+
+struct Stats_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 7);
+    if (g_gameType == GameType_DeadIsland) {
+        char Stats[112];
+    }
+    else if (g_gameType == GameType_Riptide) {
+        char Stats[136];
+    }
+};
+
+struct Rewards_inner_t
+{
+    // TODO: Test this properly
+    int32 unknown002Count;
+    if (unknown002Count > 0) {
+        struct {
+            if (g_gameType == GameType_DeadIsland) {
+                int32 unknown001;
+                int32 unknown002Count;
+                if (unknown002Count > 0) {
+                    struct {
+                        String unknown001;
+                    } unknown002[unknown002Count] <optimize=false>;
+                }
+            }
+            else if (g_gameType == GameType_Riptide) {
+                String unknown001;
+                int32 unknown002;
+            }
+        } unknown003[unknown002Count] <optimize=false>;
+    }
+};
+
+struct Rewards_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 10);
+    Rewards_inner_t Inner;
+};
+
+struct TrackedQuest_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 21);
+    int32 unknown002;
+    String unknown003;
+    int32 unknown004;
+    if (g_gameType == GameType_Riptide) {
+        int32 unknown005;
+    }
+};
+
+struct Wallet_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 11);
+    int32 Cash;
+    int32 unknown002[16]; // Individual variables
+};
+
+struct Fury_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 19);
+    float Fury;
+};
+
+struct Health_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 23);
+    float Health;
+};
+
+struct Intoxication_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 20);
+    int32 unknown002;
+    int32 unknown003;
+};
+
+struct PlayerState2_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 3);
+    struct {
+        bool unknown001[13];
+    } unknown001[3];
+};
+
+struct VisitedLocations_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 12);
+    int32 unknown001Count;
+    if (unknown001Count > 0) {
+        int32 unknown002[unknown001Count];
+    }
+};
+
+struct Vector3_t
+{
+    float X, Y, Z;
+};
+
+struct PinpointHashes_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 13);
+    int32 Count;
+    if (Count > 0) {
+        int32 unknown002[Count];
+    }
+};
+
+struct PinpointPositions_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 14);
+    local int32 Count = Hashes.Count;
+    if (Count > 0) {
+        Vector3_t Positions[Count];
+    }
+};
+
+struct Pinpoints_t
+{
+    PinpointHashes_t Hashes;
+    PinpointPositions_t Positions;
+};
+
+struct FogOfWar_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 22);
+    int32 TileBlockCount;
+    if (TileBlockCount > 0) {
+        int32 TileBlocks[TileBlockCount];
+    }
+};
+
+struct Difficulty_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 24);
+    int32 unknown001;
+    int32 unknown002;
+};
+
+struct Unknown001_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 25);
+    int32 unknown001;
+};
+
+struct Unknown002_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 26);
+    char unknown001[8];
+};
+
+struct Stop_t
+{
+    int32 HeaderId;
+    Assert(HeaderId == 8);
+};
+
+struct Section102
+{
+    uint32 totalDataSize;
+    struct
+    {
+        Start_t Start;
+        AllInventoryStuff_t AllInventoryStuff;
+        Tutorial_t Tutorial;
+        PlayerState_t PlayerState;
+        Skills_t Skills;
+        Buffs_t Buffs;
+        TimedBuffs_t TimedBuffs;
+        Stats_t Stats;
+        Collectables_t Collectables;
+        Rewards_t Rewards;
+        TrackedQuest_t TrackedQuest;
+        Wallet_t Wallet;
+        Fury_t Fury;
+        Health_t Health;
+        Intoxication_t Intoxication;
+        PlayerState2_t PlayerState2;
+        VisitedLocations_t VisitedLocations;
+        Pinpoints_t Pinpoints;
+        FogOfWar_t FogOfWar;
+        Difficulty_t Difficulty;
+        Unknown001_t Unknown001;
+        Unknown002_t Unknown002;
+        Stop_t Stop;
+    } data;
+};
+
+#endif

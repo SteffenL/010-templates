@@ -1,0 +1,65 @@
+//--------------------------------------
+//--- 010 Editor v6.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+#ifndef SECTION101_H
+#define SECTION101_H
+
+#include "include/Types.bt"
+
+struct Section101
+{
+    uint32 totalDataSize;
+    struct
+    {
+        int32 unknown001;
+        Assert(unknown001 == 0);
+        int32 unknown002;
+        Assert(unknown002 == 2);
+    
+        // Note: This value matches the 4th int found in the file magic/header. Could be a coincidence though.
+        int32 unknown003; // Version?
+        //Assert(unknown003 == g_fileHeader.u4);
+    
+        struct {
+            uint32 Count;
+            Assert(Count == 3);
+            String Text[Count]<optimize=false>;
+        } strings;
+    
+        int32 unknown006;
+        Assert(unknown006 == 4);
+        String playerClass;
+    
+        int32 chapter;
+        int32 playerLevel;
+    
+        int32 unknown008;
+        Assert(unknown008 == 5);
+        String activeQuest;
+    
+        int32 totalCompletion;
+        int32 unknown011;
+        Assert(unknown011 == 6);
+        TimeSpan timePlayed;
+        DateTime saveTime;
+        int32 unknown013;
+        Assert(unknown013 == 8);
+        bool unknown014;
+        int32 unknown0015; // Seems to always be -1
+
+        int32 unknown0017;
+        Assert(unknown0017 == 7);
+        float unknown18[3];
+        float  unknown19[3];
+        int32 unknown0020;
+        Assert(unknown0020 == 1);
+    } data;
+};
+
+#endif
