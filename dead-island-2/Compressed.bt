@@ -1,0 +1,53 @@
+typedef struct {
+    uint32 length;
+    char data[length] <optimize=false>;
+} String <read=ReadString_>;
+
+string ReadString_(String& from) {
+    local string to;
+    if (from.length > 0) {
+        Strncpy(to, from.data, from.length);
+    } else {
+        to = "";
+    }
+    return to;
+}
+
+struct ChunkHeader {
+    uint32 compressed_size;
+    uint32 decompressed_size;
+};
+
+struct Chunk {
+    ChunkHeader header;
+    byte data[header.compressed_size] <optimize=false>;
+};
+
+local uint32 START_MARKER = 0x510ED901;
+local uint32 END_MARKER = 0x5A13FC42;
+local uint32 ZSTD_FRAME_MAGIC = 0xFD2FB528;
+
+uint32 game_version;
+uint32 save_version;
+struct {
+    uint32 start_marker;
+    Assert(start_marker == START_MARKER);
+    String compression_algorithm;
+    // PS4 saves extracted using Save Wizard may be decompressed already.
+    // We need to look for the Zstd frame magic number to know whether compression
+    // is present.
+    local uint32 zstd_frame_magic = ReadUInt(FTell() + 8);
+    if (zstd_frame_magic == ZSTD_FRAME_MAGIC) {
+        local uint32 end_marker_;
+        while (true) {
+            end_marker_ = ReadUInt();
+            if (end_marker_ == END_MARKER) {
+                break;
+            }
+            Chunk chunk;
+        }
+        uint32 end_marker;
+        Assert(end_marker == END_MARKER);
+        uint64 hash;
+    }
+} compressed_chunks;

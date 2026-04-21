@@ -1,0 +1,515 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    int32 length;
+    if (length < 0) {
+        wchar_t data[-length] <optimize=false>;
+    } else {
+        char data[length] <optimize=false>;
+    }
+} String <read=ReadString_>;
+
+// FNameEntrySerialized also has some hash stuff at the end
+
+string ReadString_(String& from) {
+    local string to;
+    if (from.length > 0) {
+        Strncpy(to, from.data, from.length);
+    } else {
+        to = "";
+    }
+    return to;
+}
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        byte data[length] <optimize=false>;
+    }
+} Data;
+
+struct Guid {
+    byte data[16];
+};
+
+// Engine/Source/Runtime/CoreUObject/Public/UObject/PropertyTag.h
+// Engine/Source/Runtime/CoreUObject/Private/UObject/PropertyTag.cpp
+struct PropertyTag {
+    String name;
+    local string name_str = ReadString_(name);
+    if (name_str == "None") {
+        return;
+    }
+    String type;
+    int32 size;
+    /*if (size == 0) {
+        return;
+    }*/
+    int32 array_index;
+    local string type_str = ReadString_(type);
+
+    // present if Tag.Type.GetNumber() == 0
+    if (type_str == "StructProperty") {
+        String struct_name;
+        // struct_guid is present if Version >= VER_UE4_STRUCT_GUID_IN_PROPERTY_TAG
+        Guid struct_guid;
+    } else if (type_str == "BoolProperty") {
+        byte bool_val;
+    } else if (type_str == "ByteProperty" || type_str == "EnumProperty") {
+        String enum_name;
+    } else if (type_str == "ArrayProperty") {
+        // present if Version >= VAR_UE4_ARRAY_PROPERTY_INNER_TAGS
+        String inner_type;
+    } else {
+        // present if Version >= VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
+        if (type_str == "SetProperty") {
+            String inner_type;
+        } else if (type_str == "MapProperty") {
+            String inner_type;
+            String value_type;
+        }
+    }
+
+    // present if Version >= VER_UE4_PROPERTY_GUID_IN_PROPERTY_TAG
+    byte has_property_guid;
+    if (has_property_guid) {
+        Guid property_guid;
+    }
+};
+
+struct PropertyBase {
+};
+
+struct MapProperty;
+struct TaggedProperty;
+struct TaggedProperties;
+struct PropertyItem;
+struct PropertyItemSimple;
+struct PropertyItemStruct;
+struct Variant;
+
+struct SoftObjectPath {
+    String asset_path_name;
+    String sub_path_string;
+};
+
+struct CharacterArchetype {
+    TaggedProperties tagged_properties;
+};
+
+struct ActiveSkillRecordCollection {
+    TaggedProperties tagged_properties;
+};
+
+typedef struct {
+    String property_class;
+} ObjectProperty <read=(ReadString_(property_class))>;
+
+struct SoftObjectProperty {
+    SoftObjectPath path;
+};
+
+typedef struct {
+    String value;
+} EnumProperty <read=(ReadString_(value))>;
+
+typedef struct {
+    String value;
+} StrProperty <read=(ReadString_(value))>;
+
+typedef struct {
+    String value;
+} NameProperty <read=(ReadString_(value))>;
+
+typedef struct {
+    uint32 value;
+} UInt32Property <read=Str("%u", value)>;
+
+typedef struct {
+    int32 value;
+} IntProperty <read=Str("%d", value)>;
+
+typedef struct {
+    float value;
+} FloatProperty <read=Str("%f", value)>;
+
+struct InventoryItemInstanced {
+    TaggedProperties tagged_properties;
+};
+
+struct ProceduralGenerationContext {
+    TaggedProperties tagged_properties;
+};
+
+struct InventoryPersistentStateEntry {
+    //String key;
+    Variant value;
+};
+
+struct TutorialState {
+    TaggedProperties tagged_properties;
+};
+
+struct Vector {
+    float x;
+    float y;
+    float z;
+};
+
+struct ArrayProperty (const string& inner_type) {
+    uint32 count;
+    if (inner_type == "StructProperty") {
+        PropertyTag tag;
+        local int64 value_start_pos = FTell();
+        byte value_data[tag.size];
+        FSeek(value_start_pos);
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name)[count] <optimize=false>;
+        FSeek(value_start_pos + tag.size);
+    } else {
+        PropertyItemSimple value(inner_type)[count] <optimize=false>;
+    }
+};
+
+struct SetProperty (const string& inner_type) {
+    uint32 u001;
+    uint32 count;
+    if (inner_type == "StructProperty") {
+        PropertyTag tag;
+        local int64 value_start_pos = FTell();
+        byte value_data[tag.size];
+        FSeek(value_start_pos);
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name)[count] <optimize=false>;
+        FSeek(value_start_pos + tag.size);
+    } else {
+        PropertyItemSimple value(inner_type)[count] <optimize=false>;
+    }
+};
+
+struct MapProperty (const PropertyTag& tag) {
+    local string key_type = ReadString_(tag.inner_type);
+    local string value_type = ReadString_(tag.value_type);
+
+    if (key_type == "StructProperty") {
+        PropertyTag key_tag;
+    }
+
+    if (value_type == "StructProperty") {
+        PropertyTag value_tag;
+    }
+
+    uint32 u001;
+    uint32 count;
+
+    struct {
+        if (key_type == "StructProperty") {
+            //byte key_data[key_tag.size];
+            PropertyItem key(key_tag);
+        } else {
+            PropertyItemSimple key(key_type);
+        }
+
+        if (value_type == "StructProperty") {
+            //byte value_data[value_tag.size];
+            PropertyItem value(value_tag);
+        } else {
+            PropertyItemSimple value(value_type);
+        }
+    } items[count] <optimize=false>;
+};
+
+struct PropertyItemSimple (const string& type) {
+    if (type == "IntProperty") {
+        IntProperty value;
+    } else if (type == "UInt32Property") {
+        UInt32Property value;
+    } else if (type == "FloatProperty") {
+        FloatProperty value;
+    } else if (type == "ByteProperty") {
+        byte value;
+    } else if (type == "StructProperty") {
+        Assert(0, Str("Invalid type: %s", type));
+    } else if (type == "ArrayProperty") {
+        local string inner_type = ReadString_(tag.inner_type);
+        ArrayProperty value(inner_type);
+    } else if (type == "ObjectProperty") {
+        ObjectProperty value;
+    } else if (type == "EnumProperty") {
+        EnumProperty value;
+    } else if (type == "SetProperty") {
+        local string inner_type = ReadString_(tag.inner_type);
+        SetProperty value(inner_type);
+    } else if (type == "StrProperty") {
+        StrProperty value;
+    } else if (type == "NameProperty") {
+        NameProperty value;
+    } else if (type == "MapProperty") {
+        MapProperty value(tag);
+    } else if (type == "SoftObjectProperty") {
+        SoftObjectProperty value;
+    } else {
+        //Printf("[Property] TODO: Property type %s\n", type);
+        Assert(0, Str("Unhandled property type %s", type));
+    }
+};
+
+struct PropertyItemStruct (const string& struct_name) {
+    if (struct_name == "Guid" || struct_name == "GUID") {
+        Guid struct_data;
+    } else if (struct_name == "SoftObjectPath") {
+        SoftObjectPath struct_data;
+    } else if (struct_name == "ProceduralGenerationContext") {
+        ProceduralGenerationContext struct_data;
+    } else if (struct_name == "CharacterArchetype") {
+        CharacterArchetype struct_data;
+    } else if (struct_name == "ActiveSkillRecordCollection") {
+        ActiveSkillRecordCollection struct_data;
+    } else if (struct_name == "InventoryItemInstanced") {
+        InventoryItemInstanced struct_data;
+    } else if (struct_name == "ProceduralGenerationContext") {
+        ProceduralGenerationContext struct_data;
+    } else if (struct_name == "InventoryPersistentStateEntry") {
+        InventoryPersistentStateEntry struct_data;
+    } else if (struct_name == "TutorialState") {
+        TutorialState struct_data;
+    } else if (struct_name == "Vector") {
+        Vector struct_data;
+    } else {
+        Printf("Unhandled struct type: %s\n", struct_name);
+        struct {
+            TaggedProperties tagged_properties;
+        } placeholder_struct_data;
+        //Assert(0, Str("Unhandled struct type: %s", struct_name));
+    }
+};
+
+typedef struct (const PropertyTag& tag) {
+    local string name = ReadString_(tag.name);
+    local string type = ReadString_(tag.type);
+    if (type == "StructProperty") {
+        local string struct_name = ReadString_(tag.struct_name);
+        PropertyItemStruct value(struct_name);
+    } else {
+        PropertyItemSimple value(type);
+    }
+} PropertyItem <read=Str("%s: %s", name, type)>;
+
+enum VariantType {
+    VariantType_Empty = 0,
+    VariantType_Ansichar = 1,
+    VariantType_Bool = 2,
+    VariantType_Box = 3,
+    VariantType_BoxSphereBounds = 4,
+    VariantType_ByteArray = 5,
+    VariantType_Color = 6,
+    VariantType_DateTime = 7,
+    VariantType_Double = 8,
+    VariantType_Enum = 9,
+    VariantType_Float = 10,
+    VariantType_Guid = 11,
+    VariantType_Int8 = 12,
+    VariantType_Int16 = 13,
+    VariantType_Int32 = 14,
+    VariantType_Int64 = 15,
+    VariantType_IntRect = 16,
+    VariantType_LinearColor = 17,
+    VariantType_Matrix = 18,
+    VariantType_Name = 19,
+    VariantType_Plane = 20,
+    VariantType_Quat = 21,
+    VariantType_RandomStream = 22,
+    VariantType_Rotator = 23,
+    VariantType_String = 24,
+    VariantType_Widechar = 25,
+    VariantType_Timespan = 26,
+    VariantType_Transform = 27,
+    VariantType_TwoVectors = 28,
+    VariantType_UInt8 = 29,
+    VariantType_UInt16 = 30,
+    VariantType_UInt32 = 31,
+    VariantType_UInt64 = 32,
+    VariantType_Vector = 33,
+    VariantType_Vector2d = 34,
+    VariantType_Vector4 = 35,
+    VariantType_IntPoint = 36,
+    VariantType_IntVector = 37,
+    VariantType_NetworkGUID = 38,
+    VariantType_Custom = 0x40,
+};
+
+struct Variant {
+    VariantType type;
+    Data value_bytes;
+    FSkip(-value_bytes.length);
+    local int64 value_offset = FTell();
+    switch (type) {
+        case VariantType_Bool:
+            int32 value; // Why is this 4 bytes instead of 1 byte?
+            break;
+        case VariantType_String:
+        case VariantType_Name:
+            String value;
+            break;
+        case VariantType_Float:
+            float value;
+            break;
+        case VariantType_Int32:
+            int32 value;
+            break;
+        default:
+            Assert(0, Str("Unknown variant type %d", type));
+            break;
+    }
+    // This is rather odd, isn't it? Dead Island 2 may have additional data after a null-terminated string.
+    local int64 amount_read = FTell() - value_offset;
+    if (amount_read < value_bytes.length) {
+        local int64 extra_data_size = value_bytes.length - amount_read;
+        Printf("Reading variant type (%d) with %d extra bytes at offset %d\n", type, extra_data_size, value_offset);
+        byte extra_data[extra_data_size];
+    }
+};
+
+struct StringToVariantPairArray {
+    uint32 count;
+    if (count > 0) {
+        struct {
+            String first;
+            Variant second;
+        } items[count] <optimize=false, read=(ReadString_(first))>;
+    }
+};
+
+struct StringToInt32PairArray {
+    uint32 count;
+    if (count > 0) {
+        struct {
+            String first;
+            uint32 second;
+        } items[count] <optimize=false, read=(ReadString_(first))>;
+    }
+};
+
+struct TaggedProperties {
+    local byte foundNone = 0;
+    while (!foundNone) {
+        struct {
+            PropertyTag tag;
+            local string name_str = ReadString_(tag.name);
+            if (name_str == "None") {
+                foundNone = 1;
+                return;
+            }
+            local string type_str = ReadString_(tag.type);
+            if (type_str == "BoolProperty") {
+                // Set the property's value from the tag for booleans
+            } else {
+                // Somehow the size may be zero but still have data follow?
+                //if (tag.size > 0) {
+                    local int64 data_start_pos = FTell();
+                    byte property_data[tag.size];
+                    FSeek(data_start_pos);
+                //}
+                PropertyItem property(tag);
+                //if (tag.size > 0) {
+                    FSeek(data_start_pos + tag.size);
+                //}
+            }
+        } items <read=(ReadString_(tag.name))>;
+    }
+};
+
+typedef struct {
+    String name;
+    String package_name;
+
+    uint32 u001;
+
+    TaggedProperties tagged_properties;
+
+    uint32 u003;
+
+    local string package_name_str = ReadString_(package_name);
+    if (package_name_str == "/Script/DeadIsland.CharacterProfileSummary") {
+        struct {
+            StringToVariantPairArray items;
+        } script_data;
+    } else if (package_name_str == "/Script/KnowledgeBase.KnowledgeBasePersistentDataCollection") {
+        struct {
+            uint32 u001;
+            uint32 count;
+            struct {
+                String name;
+                uint32 u004;
+                uint32 u005;
+                uint32 u006;
+            } items[count] <optimize=false>;
+        } script_data;
+    } else if (package_name_str == "/Script/DSFramework.GameAchievementsPersistentState") {
+        struct {
+            uint32 items1_count;
+            String items1[items1_count] <optimize=false>;;
+            StringToInt32PairArray items2;
+        } script_data;
+    } else if (package_name_str == "/Script/DeadIsland.DIInventoryPersistentData") {
+        struct {
+            StringToInt32PairArray items;
+        } script_data;
+    } else if (package_name_str == "/Script/AudioPlugin.ScopedDialogueKBFactPersistentDataCollection") {
+        struct {
+            uint32 count;
+            struct {
+                String u001;
+                String u002;
+                uint32 u003;
+                uint32 u004_count;
+                uint32 u004_item[u004_count];
+            } item[count] <optimize=false>;
+        } script_data;
+    } else if (package_name_str == "/Script/DSFramework.OptionsHierarchyPersistentState") {
+        struct {
+            StringToVariantPairArray items;
+        } script_data;
+    } else {
+        //Printf("[U004] TODO: Script %s\n", package_name_str);
+    }
+} ScriptStruct <read=(ReadString_(name))>;
+
+struct U001;
+typedef struct (byte root) {
+    String name;
+    if (root) {
+        Data raw;
+        local int64 pos = FTell();
+        FSkip(-raw.length);
+    }
+    uint32 items_2_count;
+    struct {
+        uint32 count;
+        if (count > 0) {
+            ScriptStruct elements[count] <optimize=false>;
+        }
+    } items_1;
+    if (items_2_count > 0) {
+        struct {
+            U001 elements(0)[items_2_count] <optimize=false>;
+        } items_2;
+    }
+    if (root) {
+        FSeek(pos);
+    }
+} U001 <read=(ReadString_(name))>;
+
+uint32 count;
+U001 items(1)[count] <optimize=false>;
