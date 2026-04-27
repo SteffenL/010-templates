@@ -4,7 +4,7 @@ In this repository I've added some of the 010 Editor binary templates I've made 
 
 It's not all pretty as I've in some cases done the bare minimum to be able to create a save editor. Maybe later I'll come back and improve the templates. Feel free to contribute as well!
 
-Templates these games are currently included:
+Templates for these games are currently included:
 
 | Game | Tools |
 | - | - |
