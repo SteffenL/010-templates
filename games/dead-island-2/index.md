@@ -6,4 +6,4 @@ Zstd
 
 ## Checksum
 
-N/A
+CityHash64
