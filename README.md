@@ -6,7 +6,9 @@ It's not all pretty as I've in some cases done the bare minimum to be able to cr
 
 Templates these games are currently included:
 
-- Dead Island - [Save Editor](https://steffenl.com/projects/dead-island-save-editor)
-- Dead Island 2 - [Save Editor](https://steffenl.com/projects/dead-island-2-save-editor)
-- Dying Light - [Save Editor](https://steffenl.com/projects/dying-light-save-editor)
-- Dying Light 2 + The Beast - [Save Editors (SaveTailor)](https://steffenl.com/projects/savetailor)
+| Game | Tools |
+| - | - |
+| [Dead Island](./games/dead-island/index.md)                 | [Save Editor](https://steffenl.com/projects/dead-island-save-editor)   |
+| [Dead Island 2](./games/dead-island-2/index.md)             | [Save Editor](https://steffenl.com/projects/dead-island-2-save-editor) |
+| [Dying Light](./games/dying-light/index.md)                 | [Save Editor](https://steffenl.com/projects/dying-light-save-editor)   |
+| [Dying Light 2 + The Beast](./games/dying-light-2/index.md) | [Save Editors (SaveTailor)](https://steffenl.com/projects/savetailor)  |

@@ -1,4 +1,10 @@
-Dying Light 2 / The Beast Save Checksum
+# Dying Light 2 / The Beast Save Encoding
+
+## Compression
+
+Save compression is plain gzip.
+
+## Checksum
 
 This is a variant of CRC-64/WE.
 
