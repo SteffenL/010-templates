@@ -1,0 +1,146 @@
+//------------------------------------------------
+//--- 010 Editor v16.0.3 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    uint32 length;
+    if (length > 0) {
+        byte data[length];
+    }
+} Data;
+
+typedef struct {
+    byte length;
+    if (length > 0) {
+        wchar_t data[length];
+    }
+} WString;
+
+typedef struct {
+    byte length;
+    if (length > 0) {
+        char data[length];
+    }
+} String;
+
+enum <byte> VariantType {
+    VariantType_Int32 = 0,
+    VariantType_Int64 = 1,
+    VariantType_Double = 2,
+    VariantType_WString = 3,
+    VariantType_String = 4,
+    VariantType_Float = 5,
+    VariantType_Data = 6
+};
+
+typedef struct {
+    VariantType type;
+    switch (type) {
+        case VariantType_Int32:
+            int32 data;
+            break;
+        case VariantType_Int64:
+            int64 data;
+            break;
+        case VariantType_Double:
+            double data;
+            break;
+        case VariantType_WString:
+            WString data;
+            break;
+        case VariantType_String:
+            String data;
+            break;
+        case VariantType_Float:
+            float data;
+            break;
+        case VariantType_Data:
+            Data data;
+            break;
+        default:
+            Assert(false);
+    }
+} Variant;
+
+string VariantTypeToString(VariantType type) {
+    switch (type) {
+        case VariantType_Int32:
+            return "int32";
+        case VariantType_Int64:
+            return "int64";
+        case VariantType_Double:
+            return "double";
+        case VariantType_WString:
+            return "wstring";
+        case VariantType_String:
+            return "string";
+        case VariantType_Float:
+            return "float";
+        case VariantType_Data:
+            return "data";
+        default:
+            Assert(false);
+            return "";
+    }
+}
+
+string GetQuotedString(string s) {
+    local string result = "\"";
+    local int i;
+    local int l;
+    for (i = 0, l = Strlen(s); i < l; ++i) {
+        if (s[i] == '"') {
+            result += "\\\"";
+        } else {
+            result += s[i];
+        }
+    }
+    result += '"';
+    return result;
+}
+
+string VariantValueToString(const Variant& v) {
+    switch (v.type) {
+        case VariantType_Int32:
+            return Str("%d", v.data);
+        case VariantType_Int64:
+            return Str("%ld", v.data);
+        case VariantType_Double:
+            return Str("%f", v.data);
+        case VariantType_WString:
+            return GetQuotedString(v.data.length > 0 ? WStringToString(WSubStr(v.data.data, 0, v.data.length), CHARSET_UTF8) : "");
+        case VariantType_String:
+            return GetQuotedString(v.data.length > 0 ? SubStr(v.data.data, 0, v.data.length) : "");
+        case VariantType_Float:
+            return Str("%f", v.data);
+        case VariantType_Data:
+            return "[...]";
+        default:
+            Assert(false);
+            return "";
+    }
+}
+
+string FormatVariant(const Variant& v) {
+    return Str("%s = %s", VariantTypeToString(v.type), VariantValueToString(v));
+}
+
+uint32 u001;
+struct {
+    uint32 count;
+    if (count > 0) {
+        struct {
+            String key;
+            Variant value;
+        } entry[count] <optimize=false, read=(Str("%s: %s", SubStr(key.data, 0, key.length), FormatVariant(value)))>;
+    }
+} entries;
